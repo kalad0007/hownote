@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const rows = [
+  {dn:'DN 50', a:'50A', nps:'NPS 2', od:60.3},
+  {dn:'DN 65', a:'65A', nps:'NPS 2 1/2', od:73.0},
+  {dn:'DN 80', a:'80A', nps:'NPS 3', od:88.9},
+  {dn:'DN 100', a:'100A', nps:'NPS 4', od:114.3},
+  {dn:'DN 150', a:'150A', nps:'NPS 6', od:168.3},
+  {dn:'DN 200', a:'200A', nps:'NPS 8', od:219.1}
+];
+---
+<BaseLayout title="DN ↔ NPS ↔ A Pipe Size Converter — HowNote" description="Cross-reference DN, NPS and regional A pipe size designations while keeping nominal size separate from actual outside diameter.">
+  <section class="hero container">
+    <div class="eyebrow">HowNote Tools · Pipe / Tube</div>
+    <h1>DN ↔ NPS ↔ A Pipe Size Converter</h1>
+    <p>Find the matching nominal pipe-size designation across DN, NPS and the commonly used A notation. Nominal size is not the same as actual outside diameter.</p>
+  </section>
+
+  <section class="container calculator" data-converter>
+    <div class="panel">
+      <div class="field">
+        <label for="lookup">Choose a nominal pipe size</label>
+        <select id="lookup" data-lookup>
+          {rows.map((row, i) => <option value={i}>{row.dn} · {row.a} · {row.nps}</option>)}
+        </select>
+      </div>
+      <p class="muted">This first MVP intentionally contains only the same six verified pipe-size references already used by the Pipe Weight Calculator.</p>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Cross-reference result</div>
+      <div class="result-grid">
+        <div class="result-item"><span>DN</span><strong data-dn>—</strong></div>
+        <div class="result-item"><span>A designation</span><strong data-a>—</strong></div>
+        <div class="result-item"><span>NPS</span><strong data-nps>—</strong></div>
+        <div class="result-item"><span>Actual OD</span><strong data-od>—</strong></div>
+      </div>
+      <p class="muted" style="margin-top:18px"><strong>Important:</strong> DN, NPS and A are nominal designations. For example, DN 50 / 50A / NPS 2 has an actual outside diameter of 60.3 mm in this reference set.</p>
+      <a class="button" data-calculator-link href="/tools/pipe-weight-calculator?size=0" style="margin-top:8px">Use this size in Pipe Weight Calculator</a>
+    </div>
+  </section>
+
+  <section class="container" style="padding-bottom:72px">
+    <div class="card">
+      <h2>Current nominal size cross-reference</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DN</th><th>A</th><th>NPS</th><th>Actual OD mm</th><th></th></tr></thead>
+          <tbody>{rows.map((row, i) => <tr><td>{row.dn}</td><td>{row.a}</td><td>{row.nps}</td><td>{row.od}</td><td><a href={`/tools/pipe-weight-calculator?size=${i}`}>Calculate weight →</a></td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:18px">The A labels are shown as regional convenience aliases and are not presented as ASME terminology. Actual ordering must still specify the governing standard, edition, schedule or wall thickness, material and other required purchase conditions.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ rows }}>
+  const root = document.querySelector('[data-converter]');
+  if (root) {
+    const select = root.querySelector('[data-lookup]');
+    const render = () => {
+      const i = Number(select.value);
+      const row = rows[i];
+      root.querySelector('[data-dn]').textContent = row.dn;
+      root.querySelector('[data-a]').textContent = row.a;
+      root.querySelector('[data-nps]').textContent = row.nps;
+      root.querySelector('[data-od]').textContent = `${row.od} mm`;
+      root.querySelector('[data-calculator-link]').href = `/tools/pipe-weight-calculator?size=${i}`;
+    };
+    select.addEventListener('change', render);
+    render();
+  }
+</script>
