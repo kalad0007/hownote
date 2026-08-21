@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Pipe Weight Calculation Method — HowNote"
+  description="Review the geometry, density, unit conversion and limitations behind the HowNote Pipe Weight Calculator."
+>
+  <section class="hero container legal-hero">
+    <div class="eyebrow">Methodology · Calculation</div>
+    <h1>How the pipe-weight result is calculated.</h1>
+    <p>The calculator separates geometry, material density, piece length and quantity so every major input remains visible.</p>
+  </section>
+
+  <article class="container prose">
+    <h2>1. Calculate inside diameter</h2>
+    <p>When outside diameter and wall thickness are entered, inside diameter is calculated as:</p>
+    <div class="formula">ID = OD − 2t</div>
+    <p>When outside diameter and inside diameter are entered, wall thickness is calculated as:</p>
+    <div class="formula">t = (OD − ID) ÷ 2</div>
+
+    <h2>2. Calculate steel cross-sectional area</h2>
+    <div class="formula">Area = π ÷ 4 × (OD² − ID²)</div>
+    <p>OD and ID are converted to a consistent unit before area is calculated.</p>
+
+    <h2>3. Apply material density</h2>
+    <div class="formula">Mass per length = Area × Density</div>
+    <p>The default 7,850 kg/m³ value is a theoretical carbon-steel reference assumption. A selected grade, alloy, coating or manufacturer value can differ.</p>
+
+    <h2>4. Calculate piece and order mass</h2>
+    <div class="formula">Piece mass = kg/m × piece length</div>
+    <div class="formula">Total mass = piece mass × quantity</div>
+
+    <h2>Published reference versus calculated result</h2>
+    <p>For the six initial reference sizes, HowNote also displays a manufacturer-published nominal mass. It remains separate from the calculated mass. The difference can reflect rounding, density assumptions and the basis used by the publication.</p>
+
+    <h2>What the calculation excludes</h2>
+    <ul>
+      <li>Dimensional tolerances and measured production variation.</li>
+      <li>Coating, galvanizing, lining, end preparation and attachments.</li>
+      <li>Grade-specific density and chemistry variation.</li>
+      <li>Product-specific minimum or maximum mass requirements.</li>
+    </ul>
+
+    <div class="button-row">
+      <a class="button" href="/tools/pipe-weight-calculator">Open calculator</a>
+      <a class="button button-secondary" href="/disclaimer">Read limitations</a>
+    </div>
+  </article>
+</BaseLayout>
