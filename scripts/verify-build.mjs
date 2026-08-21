@@ -1,9 +1,16 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
 const failures = [];
+const canonicalOrigin = 'https://hownote.net';
+const expectedBuildSha =
+  process.env.WORKERS_CI_COMMIT_SHA
+  || process.env.GITHUB_SHA
+  || process.env.COMMIT_SHA
+  || 'local';
 
 const fail = (message) => failures.push(message);
 const routeCandidates = (route) => {
@@ -12,6 +19,26 @@ const routeCandidates = (route) => {
   return [join(dist, clean, 'index.html'), join(dist, `${clean}.html`)];
 };
 const routeExists = (route) => routeCandidates(route).some(existsSync);
+
+const attributeValue = (tag, name) => {
+  const match = tag.match(new RegExp(`\\b${name}=["']([^"']+)["']`, 'i'));
+  return match ? match[1] : null;
+};
+
+const canonicalHref = (html) => {
+  const tags = html.match(/<link\b[^>]*>/gi) || [];
+  const tag = tags.find((candidate) => {
+    const rel = attributeValue(candidate, 'rel');
+    return rel?.split(/\s+/).some((value) => value.toLowerCase() === 'canonical');
+  });
+  return tag ? attributeValue(tag, 'href') : null;
+};
+
+const metaContent = (html, name) => {
+  const tags = html.match(/<meta\b[^>]*>/gi) || [];
+  const tag = tags.find((candidate) => attributeValue(candidate, 'name')?.toLowerCase() === name.toLowerCase());
+  return tag ? attributeValue(tag, 'content') : null;
+};
 
 const expectedRoutes = [
   '/',
@@ -98,11 +125,29 @@ walk(dist);
 for (const file of htmlFiles) {
   const html = readFileSync(file, 'utf8');
   if (html.includes('workers.dev')) fail(`workers.dev leaked into built HTML: ${file}`);
-  if (!file.endsWith('404.html') && !/rel=["']canonical["'][^>]+hownote\.net|hownote\.net[^>]+rel=["']canonical["']/.test(html)) {
-    fail(`Missing hownote.net canonical URL: ${file}`);
-  }
-  if (!file.endsWith('404.html') && !html.includes('rel="manifest"')) {
-    fail(`Missing web manifest link: ${file}`);
+
+  if (!file.endsWith('404.html')) {
+    const href = canonicalHref(html);
+    if (!href) {
+      fail(`Missing canonical URL: ${file}`);
+    } else {
+      try {
+        const canonical = new URL(href, canonicalOrigin);
+        if (canonical.origin !== canonicalOrigin) {
+          fail(`Wrong canonical origin ${canonical.origin}: ${file}`);
+        }
+      } catch {
+        fail(`Invalid canonical URL ${href}: ${file}`);
+      }
+    }
+
+    if (!html.includes('rel="manifest"')) fail(`Missing web manifest link: ${file}`);
+
+    const buildSha = metaContent(html, 'hownote-build');
+    if (!buildSha) fail(`Missing hownote-build revision marker: ${file}`);
+    else if (buildSha !== expectedBuildSha) {
+      fail(`Build revision ${buildSha} does not match expected ${expectedBuildSha}: ${file}`);
+    }
   }
 
   for (const match of html.matchAll(/href=["'](\/[^"]*?)["']/g)) {
@@ -121,5 +166,5 @@ if (failures.length) {
 }
 
 console.log(
-  `HowNote build verification passed: ${expectedRoutes.length} routes, ${htmlFiles.length} HTML files, security headers, redirects and manifest.`,
+  `HowNote build verification passed: ${expectedRoutes.length} routes, ${htmlFiles.length} HTML files, exact revision ${expectedBuildSha}, security headers, redirects and manifest.`,
 );
