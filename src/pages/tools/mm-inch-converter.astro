@@ -23,7 +23,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </div>
       <div class="button-row">
         <button class="button" type="button" data-copy>Copy result</button>
-        <button class="button button-secondary" type="button" data-swap>Swap values</button>
+        <button class="button button-secondary" type="button" data-reset>Reset</button>
       </div>
       <p class="status-text" data-status aria-live="polite"></p>
     </div>
@@ -54,7 +54,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const mm = root.querySelector('[data-mm]');
     const inch = root.querySelector('[data-inch]');
     const copy = root.querySelector('[data-copy]');
-    const swap = root.querySelector('[data-swap]');
+    const reset = root.querySelector('[data-reset]');
     const status = root.querySelector('[data-status]');
 
     if (mm instanceof HTMLInputElement && inch instanceof HTMLInputElement) {
@@ -72,11 +72,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         mm.value = Number.isFinite(value) ? format(value * 25.4) : '';
       });
 
-      swap?.addEventListener('click', () => {
-        const currentMm = mm.value;
-        mm.value = inch.value;
-        inch.value = currentMm;
+      reset?.addEventListener('click', () => {
+        mm.value = '25.4';
         mm.dispatchEvent(new Event('input'));
+        if (status) status.textContent = '';
       });
 
       copy?.addEventListener('click', async () => {
