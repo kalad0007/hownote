@@ -16,6 +16,7 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const buildSha = __HOWNOTE_BUILD_SHA__;
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -34,6 +35,7 @@ const schema = {
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#164b42" />
     <meta name="color-scheme" content="light" />
+    <meta name="hownote-build" content={buildSha} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
