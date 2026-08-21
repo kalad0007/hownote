@@ -61,24 +61,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const format = (value: number) => Number.isFinite(value)
         ? Number(value.toPrecision(12)).toString()
         : '';
+      const read = (input: HTMLInputElement) => input.value.trim() === '' ? null : Number(input.value);
+      const clearStatus = () => { if (status) status.textContent = ''; };
 
       mm.addEventListener('input', () => {
-        const value = Number(mm.value);
-        inch.value = Number.isFinite(value) ? format(value / 25.4) : '';
+        const value = read(mm);
+        inch.value = value !== null && Number.isFinite(value) ? format(value / 25.4) : '';
+        clearStatus();
       });
 
       inch.addEventListener('input', () => {
-        const value = Number(inch.value);
-        mm.value = Number.isFinite(value) ? format(value * 25.4) : '';
+        const value = read(inch);
+        mm.value = value !== null && Number.isFinite(value) ? format(value * 25.4) : '';
+        clearStatus();
       });
 
       reset?.addEventListener('click', () => {
         mm.value = '25.4';
         mm.dispatchEvent(new Event('input'));
-        if (status) status.textContent = '';
       });
 
       copy?.addEventListener('click', async () => {
+        const mmValue = read(mm);
+        const inchValue = read(inch);
+        if (mmValue === null || inchValue === null || !Number.isFinite(mmValue) || !Number.isFinite(inchValue)) {
+          if (status) status.textContent = 'Enter a valid value before copying.';
+          return;
+        }
         const text = `${mm.value} mm = ${inch.value} in`;
         try {
           await navigator.clipboard.writeText(text);
