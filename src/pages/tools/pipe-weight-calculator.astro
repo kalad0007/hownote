@@ -174,6 +174,16 @@ import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
         if (element) element.textContent = text;
       };
 
+      const syncMaterialPreset = (requestedMaterial = null) => {
+        const presetValues = Array.from(material.options).map((option) => option.value);
+        if (requestedMaterial && presetValues.includes(requestedMaterial)) {
+          material.value = requestedMaterial;
+          return;
+        }
+        const matching = Array.from(material.options).find((option) => option.value !== 'custom' && option.value === density.value);
+        material.value = matching ? matching.value : 'custom';
+      };
+
       const setGeometryMode = () => {
         get('[data-wall-field]')?.classList.toggle('hidden', geometryMode.value !== 'wall');
         get('[data-id-field]')?.classList.toggle('hidden', geometryMode.value !== 'id');
@@ -208,6 +218,7 @@ import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
         url.searchParams.set('od', od.value);
         if (geometryMode.value === 'wall') url.searchParams.set('wall', wall.value);
         else url.searchParams.set('id', idInput.value);
+        url.searchParams.set('material', material.value);
         url.searchParams.set('density', density.value);
         url.searchParams.set('length', length.value);
         url.searchParams.set('lengthUnit', lengthUnit.value);
@@ -296,6 +307,8 @@ import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
           else assignPositive('id', idInput);
         }
         assignPositive('density', density);
+        syncMaterialPreset(params.get('material'));
+        if (material.value !== 'custom' && params.get('density') === null) density.value = material.value;
         assignPositive('length', length);
         assignPositive('qty', qty);
       };
@@ -346,8 +359,7 @@ import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
       });
 
       density.addEventListener('input', () => {
-        const matching = Array.from(material.options).find((option) => option.value === density.value);
-        material.value = matching ? matching.value : 'custom';
+        syncMaterialPreset();
         calculate();
       });
 
@@ -371,7 +383,11 @@ import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
       });
 
       get('[data-copy-link]')?.addEventListener('click', async () => {
-        calculate();
+        const result = calculate();
+        if (!result) {
+          if (status) status.textContent = 'Fix invalid inputs before copying a share link.';
+          return;
+        }
         try {
           await navigator.clipboard.writeText(window.location.href);
           if (status) status.textContent = 'Share link copied.';
