@@ -1,6 +1,63 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
 ---
-<BaseLayout title="Pipe Sizes — HowNote">
-  <section class="hero container"><div class="eyebrow">HowNote Sizes</div><h1>Nominal size is not actual diameter.</h1><p>HowNote keeps DN, NPS and regional A aliases separate from OD, wall thickness and calculated ID. The first production dataset is the limited NPS 2–8 Schedule 40 reference subset used by the Pipe Weight Calculator.</p><a class="button" href="/tools/pipe-weight-calculator">Open size-linked calculator</a></section>
+<BaseLayout
+  title="Pipe Size Reference — DN, NPS, A, OD & Wall | HowNote"
+  description="Review HowNote's first cross-checked pipe-size subset with nominal DN, NPS and A labels separated from actual OD and wall thickness."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowNote Sizes · Pipe / Tube</div>
+    <h1>Nominal size is not actual diameter.</h1>
+    <p>HowNote keeps DN, NPS and regional A aliases separate from actual OD, wall thickness and calculated ID. The first public dataset is a deliberately limited Schedule 40 subset.</p>
+    <div class="button-row">
+      <a class="button" href="/tools/dn-nps-a-converter">Open size converter</a>
+      <a class="button button-secondary" href="/tools/pipe-weight-calculator">Calculate pipe weight</a>
+    </div>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <h2>Initial verified reference subset</h2>
+      <p class="muted">The standard identity is sourced from ASME. The limited dimensions and nominal mass values are cross-checked against manufacturer publications. A labels are displayed only as regional convenience aliases.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Nominal reference</th><th>OD mm</th><th>Wall mm</th><th>Calculated ID mm</th><th>Published kg/m</th><th></th></tr>
+          </thead>
+          <tbody>
+            {sizes.map((row, i) => {
+              const insideDiameter = row.odMm - 2 * row.wallMm;
+              return <tr>
+                <td>{pipeLabel(row)}</td>
+                <td>{row.odMm}</td>
+                <td>{row.wallMm}</td>
+                <td>{insideDiameter.toFixed(2)}</td>
+                <td>{row.publishedKgM}</td>
+                <td><a class="text-link" href={`/tools/pipe-weight-calculator?size=${i}`}>Calculate →</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="container grid">
+    <article class="card">
+      <div class="eyebrow">Nominal system</div>
+      <h2>DN</h2>
+      <p class="muted">DN is a dimensionless nominal designation. It is not a direct millimeter measurement of OD or ID.</p>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Nominal system</div>
+      <h2>NPS</h2>
+      <p class="muted">NPS is a nominal pipe size designation. Converting the NPS number directly to millimeters does not produce the actual OD.</p>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Regional alias</div>
+      <h2>A designation</h2>
+      <p class="muted">A labels such as 50A are shown for regional convenience and are kept separate from official ASME terminology.</p>
+    </article>
+  </section>
 </BaseLayout>
