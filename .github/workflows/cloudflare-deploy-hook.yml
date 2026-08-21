@@ -1,0 +1,43 @@
+name: Trigger Cloudflare deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Reason for the manual deployment
+        required: false
+        default: Retry the latest main deployment
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hownote-cloudflare-deploy-hook
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate deploy-hook secret
+        env:
+          CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$CLOUDFLARE_DEPLOY_HOOK" ]; then
+            echo "::error::Repository secret CLOUDFLARE_DEPLOY_HOOK is not configured."
+            exit 1
+          fi
+
+      - name: Trigger the configured Cloudflare build
+        env:
+          CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+          DEPLOY_REASON: ${{ inputs.reason }}
+        run: |
+          echo "Triggering Cloudflare deployment: $DEPLOY_REASON"
+          curl --fail --silent --show-error \
+            --request POST \
+            --max-time 30 \
+            "$CLOUDFLARE_DEPLOY_HOOK"
+          echo
+          echo "Cloudflare accepted the deployment trigger."
