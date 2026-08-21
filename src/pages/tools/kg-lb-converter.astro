@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Kilogram to Pound Converter — kg ↔ lb | HowNote"
+  description="Convert kilograms and avoirdupois pounds using 1 lb = 0.45359237 kg."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowNote Tools · Unit Converter</div>
+    <h1>Kilogram ↔ Pound Converter</h1>
+    <p>Convert mass between kilograms and avoirdupois pounds for shipping, product weight and order estimates.</p>
+  </section>
+
+  <section class="container calculator compact-calculator" data-unit-converter>
+    <div class="panel">
+      <div class="field">
+        <label for="kilograms">Kilograms (kg)</label>
+        <input id="kilograms" data-kg type="number" step="any" value="1" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="pounds">Pounds (lb)</label>
+        <input id="pounds" data-lb type="number" step="any" value="2.20462262185" inputmode="decimal" />
+      </div>
+      <div class="button-row">
+        <button class="button" type="button" data-copy>Copy result</button>
+        <button class="button button-secondary" type="button" data-reset>Reset</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
+    </div>
+
+    <aside class="panel">
+      <div class="eyebrow">Conversion factor</div>
+      <div class="result-main">1 lb = 0.45359237 kg</div>
+      <p class="muted">This tool uses the avoirdupois pound. It does not convert pound-force, troy pounds or other quantities that use “pound” terminology.</p>
+      <a class="text-link" href="https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b9" rel="noopener noreferrer">NIST conversion reference →</a>
+    </aside>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <h2>Calculate an order weight first</h2>
+      <p class="muted">Use the pipe calculator to estimate kilograms per metre, piece weight and total order weight, then convert the final mass here when a supplier or logistics document uses pounds.</p>
+      <a class="button button-secondary" href="/tools/pipe-weight-calculator">Open Pipe Weight Calculator</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-unit-converter]');
+  if (root) {
+    const kg = root.querySelector('[data-kg]');
+    const lb = root.querySelector('[data-lb]');
+    const copy = root.querySelector('[data-copy]');
+    const reset = root.querySelector('[data-reset]');
+    const status = root.querySelector('[data-status]');
+    const poundsToKg = 0.45359237;
+
+    if (kg instanceof HTMLInputElement && lb instanceof HTMLInputElement) {
+      const format = (value: number) => Number.isFinite(value)
+        ? Number(value.toPrecision(12)).toString()
+        : '';
+
+      kg.addEventListener('input', () => {
+        const value = Number(kg.value);
+        lb.value = Number.isFinite(value) ? format(value / poundsToKg) : '';
+      });
+
+      lb.addEventListener('input', () => {
+        const value = Number(lb.value);
+        kg.value = Number.isFinite(value) ? format(value * poundsToKg) : '';
+      });
+
+      reset?.addEventListener('click', () => {
+        kg.value = '1';
+        kg.dispatchEvent(new Event('input'));
+        if (status) status.textContent = '';
+      });
+
+      copy?.addEventListener('click', async () => {
+        const text = `${kg.value} kg = ${lb.value} lb`;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = 'Result copied.';
+        } catch {
+          if (status) status.textContent = text;
+        }
+      });
+    }
+  }
+</script>
