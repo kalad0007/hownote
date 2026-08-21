@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="HowSpec — Standards, Compatibility & Purchase Notes | HowNote"
+  description="HowSpec connects standards evidence, product conditions, compatibility reasoning and supplier-facing Purchase Notes."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowSpec · HowNote</div>
+    <h1>From a standard number to a safer purchasing decision.</h1>
+    <p>HowSpec is the standards-focused product layer inside HowNote. It keeps official evidence, product conditions, compatibility reasoning and supplier confirmations separate instead of reducing the answer to a misleading yes or no.</p>
+    <div class="button-row">
+      <a class="button" href="/howspec/purchase-note">Build a Purchase Note draft</a>
+      <a class="button button-secondary" href="/standards">Browse current standards</a>
+    </div>
+  </section>
+
+  <section class="container howspec-flow" aria-label="HowSpec workflow">
+    <article class="card">
+      <span class="step-number">01</span>
+      <h2>Standard</h2>
+      <p class="muted">Identify the exact standard, organization, edition, status and source before comparing anything.</p>
+      <span class="badge badge-official">CURRENT MVP</span>
+    </article>
+    <article class="card">
+      <span class="step-number">02</span>
+      <h2>Product</h2>
+      <p class="muted">Separate nominal size from actual dimensions, material, testing, marking and certificate requirements.</p>
+      <span class="badge badge-manufacturer">CURRENT MVP</span>
+    </article>
+    <article class="card planned-card">
+      <span class="step-number">03</span>
+      <h2>Compare</h2>
+      <p class="muted">Compare the exact editions and product conditions without claiming equivalence from a similar title or scope.</p>
+      <span class="badge">PLANNED</span>
+    </article>
+    <article class="card planned-card">
+      <span class="step-number">04</span>
+      <h2>Compatibility</h2>
+      <p class="muted">Explain dimensional, material, mechanical, testing and regulatory gaps with visible evidence.</p>
+      <span class="badge">PLANNED</span>
+    </article>
+    <article class="card">
+      <span class="step-number">05</span>
+      <h2>Purchase Note</h2>
+      <p class="muted">Turn known requirements and unresolved questions into a structured supplier-confirmation draft.</p>
+      <a class="text-link" href="/howspec/purchase-note">Open builder →</a>
+    </article>
+  </section>
+
+  <section class="container standard-layout related-section">
+    <article class="card prose-card">
+      <h2>What the first Purchase Note does</h2>
+      <p>The first release is a browser-only drafting aid. It helps organize the product standard, dimension standard, actual size, material, inspection, documents, marking, packing and unresolved supplier confirmations in one note.</p>
+      <p>It does not decide whether two standards are equivalent, whether the product is legally compliant, or whether a supplier can manufacture it.</p>
+      <div class="callout compact-callout">
+        <strong>Current boundary</strong>
+        <p>Known facts go into the specification sections. Missing or uncertain items remain visible under supplier confirmations instead of being silently guessed.</p>
+      </div>
+    </article>
+
+    <aside class="card standard-facts">
+      <div class="eyebrow">Evidence rule</div>
+      <h2>Official and inferred are never the same.</h2>
+      <div class="badge-row">
+        <span class="badge badge-official">OFFICIAL</span>
+        <span class="badge badge-manufacturer">MANUFACTURER</span>
+        <span class="badge badge-calculated">CALCULATED</span>
+        <span class="badge">UNRESOLVED</span>
+      </div>
+      <p class="muted">A future comparison or AI-assisted result must retain its source type and reasoning all the way into the Purchase Note.</p>
+      <a class="text-link" href="/sources">Review source policy →</a>
+    </aside>
+  </section>
+</BaseLayout>
