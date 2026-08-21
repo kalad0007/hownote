@@ -1,0 +1,32 @@
+---
+import '../styles/global.css';
+interface Props { title?: string; description?: string; }
+const { title = 'HowNote — Practical Standards & Tools', description = 'Engineering calculators, size references, standards comparison and sourcing intelligence.' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">HowNote</a>
+        <nav aria-label="Primary">
+          <a href="/tools">Tools</a>
+          <a href="/sizes">Sizes</a>
+          <a href="/standards">Standards</a>
+        </nav>
+        <a class="button" href="/tools/pipe-weight-calculator">Pipe Calculator</a>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer class="footer"><div class="container">© 2026 HowNote · Practical standards, tools & sourcing intelligence.</div></footer>
+  </body>
+</html>
