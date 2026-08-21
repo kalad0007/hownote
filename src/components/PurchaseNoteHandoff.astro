@@ -1,0 +1,52 @@
+<script>
+  const calculator = document.querySelector('[data-calculator]');
+
+  if (calculator instanceof HTMLElement) {
+    const actionRow = calculator.querySelector('.result-panel .button-row');
+    const size = calculator.querySelector('[data-size]');
+    const geometryUnit = calculator.querySelector('[data-geometry-unit-select]');
+    const od = calculator.querySelector('[data-od]');
+    const wall = calculator.querySelector('[data-wall]');
+    const length = calculator.querySelector('[data-length]');
+    const lengthUnit = calculator.querySelector('[data-length-unit-select]');
+    const qty = calculator.querySelector('[data-qty]');
+
+    const controlsReady = actionRow instanceof HTMLElement
+      && size instanceof HTMLSelectElement
+      && geometryUnit instanceof HTMLSelectElement
+      && od instanceof HTMLInputElement
+      && wall instanceof HTMLInputElement
+      && length instanceof HTMLInputElement
+      && lengthUnit instanceof HTMLSelectElement
+      && qty instanceof HTMLInputElement;
+
+    if (controlsReady && !actionRow.querySelector('[data-purchase-note-handoff]')) {
+      const link = document.createElement('a');
+      link.className = 'button button-secondary';
+      link.dataset.purchaseNoteHandoff = '';
+      link.textContent = 'Start Purchase Note';
+      actionRow.appendChild(link);
+
+      const updateLink = () => {
+        const url = new URL('/howspec/purchase-note', window.location.origin);
+        const factor = geometryUnit.value === 'in' ? 25.4 : 1;
+        const odMm = Number(od.value) * factor;
+        const wallMm = Number(wall.value) * factor;
+
+        url.searchParams.set('size', size.value);
+        if (Number.isFinite(odMm) && odMm > 0) url.searchParams.set('od', String(Number(odMm.toPrecision(10))));
+        if (Number.isFinite(wallMm) && wallMm > 0) url.searchParams.set('wall', String(Number(wallMm.toPrecision(10))));
+        if (Number(length.value) > 0) url.searchParams.set('length', length.value);
+        url.searchParams.set('lengthUnit', lengthUnit.value);
+        if (Number(qty.value) > 0) url.searchParams.set('qty', qty.value);
+
+        link.href = `${url.pathname}${url.search}`;
+      };
+
+      calculator.addEventListener('input', updateLink);
+      calculator.addEventListener('change', updateLink);
+      window.addEventListener('popstate', updateLink);
+      updateLink();
+    }
+  }
+</script>

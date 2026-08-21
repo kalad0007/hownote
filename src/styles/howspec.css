@@ -1,0 +1,313 @@
+.howspec-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 10px 0 72px;
+}
+
+.howspec-flow .card {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.howspec-flow .text-link,
+.howspec-flow .badge {
+  margin-top: auto;
+}
+
+.step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #e8f1ed;
+  color: #164b42;
+  font-weight: 850;
+}
+
+.planned-card {
+  background: #fafbfa;
+  border-style: dashed;
+}
+
+.purchase-note-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(380px, .82fr);
+  gap: 22px;
+  align-items: start;
+  padding: 20px 0 76px;
+}
+
+.purchase-note-form {
+  padding: 26px;
+}
+
+.purchase-note-form textarea {
+  width: 100%;
+  min-height: 84px;
+  resize: vertical;
+  padding: 12px 13px;
+  border: 1px solid #bccbc5;
+  border-radius: 10px;
+  background: #fff;
+  color: #17332f;
+  font: inherit;
+  line-height: 1.55;
+}
+
+.purchase-note-form textarea:focus {
+  outline: 3px solid rgba(22, 75, 66, .14);
+  border-color: #164b42;
+}
+
+.form-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 36px 0 18px;
+  padding-top: 28px;
+  border-top: 1px solid #e2e8e5;
+}
+
+.form-section-heading:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.form-section-heading h2 {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+  letter-spacing: -.025em;
+}
+
+.checkbox-fieldset {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid #cbd8d3;
+  border-radius: 12px;
+}
+
+.checkbox-fieldset legend {
+  padding: 0 6px;
+  font-weight: 750;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.checkbox-grid label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #455c56;
+}
+
+.checkbox-grid input {
+  width: 18px;
+  height: 18px;
+  accent-color: #164b42;
+}
+
+.privacy-note {
+  margin: 16px 0 0;
+  font-size: .9rem;
+}
+
+.purchase-note-preview-panel {
+  position: sticky;
+  top: 90px;
+  padding: 24px;
+}
+
+.preview-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.preview-heading h2 {
+  margin: 6px 0 0;
+  font-size: 1.9rem;
+  letter-spacing: -.03em;
+}
+
+.review-flags {
+  margin: 20px 0;
+  padding: 16px 18px;
+  border: 1px solid #dfb8b3;
+  border-radius: 12px;
+  background: #fff5f3;
+  color: #74332c;
+}
+
+.review-flags.flags-clear {
+  border-color: #a8cabb;
+  background: #eff8f3;
+  color: #235c49;
+}
+
+.review-flags ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.review-flags li + li {
+  margin-top: 5px;
+}
+
+.note-preview {
+  width: 100%;
+  max-height: 64vh;
+  margin: 0;
+  padding: 20px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #d7e1dd;
+  border-radius: 12px;
+  background: #f8faf9;
+  color: #203d37;
+  font: 500 .84rem/1.62 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+.preview-actions {
+  margin-top: 16px;
+}
+
+.preview-disclaimer {
+  margin-top: 18px;
+  font-size: .88rem;
+  line-height: 1.65;
+}
+
+.boundary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.boundary-grid div {
+  display: grid;
+  gap: 4px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f3f7f5;
+}
+
+.boundary-grid span {
+  color: #8a3f37;
+  font-size: .84rem;
+  font-weight: 750;
+}
+
+@media (max-width: 1080px) {
+  .howspec-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .purchase-note-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-note-preview-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .howspec-flow,
+  .boundary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .howspec-flow .card {
+    min-height: 220px;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section-heading {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .howspec-flow,
+  .boundary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-note-form,
+  .purchase-note-preview-panel {
+    padding: 18px;
+  }
+
+  .note-preview {
+    padding: 15px;
+    font-size: .78rem;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  .site-header,
+  .footer,
+  .hero,
+  .purchase-note-form,
+  .related-section,
+  .review-flags,
+  .preview-actions,
+  .status-text,
+  .preview-disclaimer {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .purchase-note-layout {
+    display: block;
+    width: 100%;
+    padding: 0;
+  }
+
+  .purchase-note-preview-panel {
+    position: static;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .preview-heading {
+    margin-bottom: 12px;
+  }
+
+  .note-preview {
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+    font-size: 9.5pt;
+    line-height: 1.48;
+  }
+}

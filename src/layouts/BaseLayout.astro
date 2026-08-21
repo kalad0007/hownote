@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import '../styles/howspec.css';
+import PurchaseNoteHandoff from '../components/PurchaseNoteHandoff.astro';
 
 interface Props {
   title?: string;
@@ -57,6 +59,7 @@ const schema = {
           <a href="/tools">Tools</a>
           <a href="/sizes">Sizes</a>
           <a href="/standards">Standards</a>
+          <a href="/howspec">HowSpec</a>
         </nav>
         <a class="button header-cta" href="/tools/pipe-weight-calculator">Pipe Calculator</a>
       </div>
@@ -70,6 +73,7 @@ const schema = {
         </div>
         <nav class="footer-links" aria-label="Footer">
           <a href="/about">About</a>
+          <a href="/howspec">HowSpec</a>
           <a href="/sources">Sources</a>
           <a href="/methodology/pipe-weight">Methodology</a>
           <a href="/contact">Contact</a>
@@ -80,5 +84,6 @@ const schema = {
       </div>
       <div class="container footer-bottom">© 2026 HowNote. All rights reserved.</div>
     </footer>
+    <PurchaseNoteHandoff />
   </body>
 </html>

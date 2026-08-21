@@ -1,8 +1,8 @@
-# HowNote Astro MVP v0.5
+# HowNote Astro MVP v0.6
 
 Production repository for **https://hownote.net**.
 
-HowNote is a practical standards, engineering tools and sourcing-intelligence platform. The MVP deliberately begins with a small pipe/tube workflow:
+HowNote is a practical standards, engineering tools and sourcing-intelligence platform. The current MVP connects a small pipe/tube workflow to the first HowSpec Purchase Note drafting tool:
 
 ```text
 Unit conversion
@@ -10,6 +10,7 @@ Unit conversion
   → Actual OD and wall reference
   → Pipe weight calculation
   → Standard identity and evidence
+  → Purchase Note draft
 ```
 
 ## Live pages
@@ -24,10 +25,26 @@ Unit conversion
   - Density presets and custom density
   - Published-reference comparison
   - Shareable URL state and copy result
+  - Dynamic handoff to a Purchase Note draft with current size, geometry, length and quantity
 - `/tools/dn-nps-a-converter`
 - `/tools/mm-inch-converter`
 - `/tools/kg-lb-converter`
 - `/tools/mpa-psi-converter`
+
+### HowSpec
+
+- `/howspec`
+  - Product boundary and evidence model
+  - Current and planned HowSpec workflow stages
+- `/howspec/purchase-note`
+  - Browser-only preliminary Purchase Note Builder
+  - Product and dimension standards kept separate
+  - Nominal size and actual geometry kept separate
+  - Material, inspection, certificate, marking, packing and delivery sections
+  - Automatic open-item flags
+  - Copy, TXT download and print output
+
+The Purchase Note MVP is a drafting aid. It does not establish standard equivalence, product compatibility, regulatory compliance or supplier capability.
 
 ### References
 
@@ -58,7 +75,7 @@ The first Schedule 40 reference subset contains:
 - NPS 6 / DN 150 / regional alias 150A
 - NPS 8 / DN 200 / regional alias 200A
 
-The shared source module is `src/data/pipe.ts`.
+The shared source module is `src/data/pipe.ts`. The calculator, nominal-size converter and Purchase Note Builder use the same subset.
 
 ## Evidence labels
 
@@ -66,6 +83,7 @@ The shared source module is `src/data/pipe.ts`.
 - `MANUFACTURER`: limited OD, wall and nominal-mass cross-checks
 - `CALCULATED`: HowNote geometry, density and unit-conversion results
 - `Regional alias`: A designation shown for convenience; not ASME terminology
+- `UNRESOLVED`: missing or unverified transaction requirement
 - `INTERFACE REFERENCE`: workflow research that is not used as production dimension data
 
 HowNote does not reproduce the complete paid ASME dimension table.
@@ -85,7 +103,7 @@ Production validation:
 npm run validate
 ```
 
-The zero-dependency verifier checks expected routes, the sitemap, robots.txt, the 404 page, internal links and the canonical `hownote.net` host.
+The zero-dependency verifier checks expected routes, the sitemap, robots.txt, the 404 page, internal links, deployment metadata, security files and the canonical `hownote.net` host.
 
 ## Cloudflare Workers deployment
 
@@ -112,16 +130,24 @@ hownote.net
   → Cloudflare Workers Static Assets
   → Astro static generation
   → TypeScript source data
-  → browser-side calculations
+  → browser-side calculations and Purchase Note drafting
 ```
 
-No Supabase database is required at this stage. A database becomes relevant when the product needs user accounts, saved projects, arbitrary standards graph queries, document uploads, live AI analysis or transaction-specific Purchase Notes.
+No Supabase database is required at this stage. A database becomes relevant when the product needs user accounts, saved projects, arbitrary standards graph queries, document uploads, live AI analysis or stored transaction-specific Purchase Notes.
+
+## Project source documents
+
+- `docs/PROJECT_CONTEXT.md`
+- `docs/SECURITY_AND_SEO.md`
+- `docs/PURCHASE_NOTE_MVP.md`
 
 ## Next product gates
 
-1. Confirm the production deploy and GitHub validation for v0.5.
-2. Activate `hello@hownote.net` email routing before public outreach.
-3. Add `www.hownote.net` and redirect it to the canonical apex domain.
-4. Register Google Search Console and Naver Search Advisor.
-5. Expand pipe data only after each new source set is documented.
-6. Begin the first Standard Compare / Compatibility / Purchase Note case study.
+1. Confirm the production deploy and GitHub validation for v0.6.
+2. Validate calculator-to-Purchase-Note handoff on desktop and mobile.
+3. Activate a working HowNote contact email before public outreach.
+4. Add `www.hownote.net` and redirect it to the canonical apex domain.
+5. Register Google Search Console and Naver Search Advisor.
+6. Expand pipe data only after each new source set is documented.
+7. Build the first evidence-backed Standard Compare case.
+8. Convert verified comparison gaps into Purchase Note risk points.
