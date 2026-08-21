@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Sources & Evidence Register — HowNote"
+  description="Review the official, manufacturer, metrology and interface-reference sources used by the current HowNote MVP."
+>
+  <section class="hero container">
+    <div class="eyebrow">Sources · Evidence Register</div>
+    <h1>See what supports each kind of HowNote information.</h1>
+    <p>HowNote separates official standard metadata, manufacturer reference data, metrology conversion factors, calculated outputs and interface research.</p>
+  </section>
+
+  <section class="container source-list related-section">
+    <article class="card source-card">
+      <span class="badge badge-official">OFFICIAL</span>
+      <h2>ASME B36.10-2022</h2>
+      <p class="muted">Used for standard designation, title, edition and official scope summary.</p>
+      <a class="text-link" href="https://www.asme.org/codes-standards/find-codes-standards/welded-and-seamless-wrought-steel-pipe" rel="noopener noreferrer">Open ASME source →</a>
+    </article>
+
+    <article class="card source-card">
+      <span class="badge badge-manufacturer">MANUFACTURER</span>
+      <h2>Wheatland Tube standard-pipe literature</h2>
+      <p class="muted">Used as one side of the limited OD, wall and nominal-mass cross-check for the initial Schedule 40 subset.</p>
+      <a class="text-link" href="https://www.wheatland.com/resource-library/standard-pipe-brochure" rel="noopener noreferrer">Open Wheatland resource →</a>
+    </article>
+
+    <article class="card source-card">
+      <span class="badge badge-manufacturer">MANUFACTURER</span>
+      <h2>Nucor Tubular A53 standard pipe</h2>
+      <p class="muted">Used as an independent manufacturer reference for the first public pipe-size subset.</p>
+      <a class="text-link" href="https://www.nucortubular.com/product/a53/" rel="noopener noreferrer">Open Nucor source →</a>
+    </article>
+
+    <article class="card source-card">
+      <span class="badge badge-official">METROLOGY</span>
+      <h2>NIST unit-conversion references</h2>
+      <p class="muted">Used for the exact international inch and traceable mass and pressure conversion factors.</p>
+      <div class="source-row">
+        <a class="text-link" href="https://www.nist.gov/pml/owm/si-units-length" rel="noopener noreferrer">Length</a>
+        <a class="text-link" href="https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b9" rel="noopener noreferrer">Mass</a>
+        <a class="text-link" href="https://www.nist.gov/pml/owm/metric-si/unit-conversion/pressure-and-gas-flow-unit-conversions" rel="noopener noreferrer">Pressure</a>
+      </div>
+    </article>
+
+    <article class="card source-card">
+      <span class="badge">INTERFACE REFERENCE</span>
+      <h2>Whole-Spec</h2>
+      <p class="muted">Reviewed for product-family navigation, integrated size lookup and tool-to-reference workflow. It is not used as the production source for HowNote’s published pipe dimensions.</p>
+      <a class="text-link" href="https://whole-spec.com/en/about" rel="noopener noreferrer">Open Whole-Spec reference →</a>
+    </article>
+
+    <article class="card source-card">
+      <span class="badge badge-calculated">CALCULATED</span>
+      <h2>HowNote calculation engine</h2>
+      <p class="muted">Inside diameter, cross-sectional area, kg/m, lb/ft, piece mass and order mass are calculated from the user-visible geometry and density inputs.</p>
+      <a class="text-link" href="/methodology/pipe-weight">Review the formula →</a>
+    </article>
+  </section>
+</BaseLayout>
