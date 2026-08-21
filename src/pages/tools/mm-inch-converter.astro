@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Millimeter to Inch Converter — mm ↔ in | HowNote"
+  description="Convert millimeters and inches using the exact international inch definition: 1 inch = 25.4 millimeters."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowNote Tools · Unit Converter</div>
+    <h1>Millimeter ↔ Inch Converter</h1>
+    <p>Convert engineering dimensions in either direction using the exact international definition of one inch as 25.4 millimeters.</p>
+  </section>
+
+  <section class="container calculator compact-calculator" data-unit-converter>
+    <div class="panel">
+      <div class="field">
+        <label for="millimeters">Millimeters (mm)</label>
+        <input id="millimeters" data-mm type="number" step="any" value="25.4" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="inches">Inches (in)</label>
+        <input id="inches" data-inch type="number" step="any" value="1" inputmode="decimal" />
+      </div>
+      <div class="button-row">
+        <button class="button" type="button" data-copy>Copy result</button>
+        <button class="button button-secondary" type="button" data-swap>Swap values</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
+    </div>
+
+    <aside class="panel">
+      <div class="eyebrow">Exact factor</div>
+      <div class="result-main">1 in = 25.4 mm</div>
+      <p class="muted">The international inch is defined as exactly 25.4 millimeters. Display rounding does not change the calculation factor.</p>
+      <a class="text-link" href="https://www.nist.gov/pml/owm/si-units-length" rel="noopener noreferrer">NIST length reference →</a>
+    </aside>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <h2>Use the converted dimension</h2>
+      <p class="muted">For nominal pipe sizes, do not convert the NPS number itself into millimeters. Use the DN–NPS–A reference to find the nominal designation and actual OD.</p>
+      <div class="button-row">
+        <a class="button button-secondary" href="/tools/dn-nps-a-converter">Open DN–NPS–A Converter</a>
+        <a class="button button-secondary" href="/tools/pipe-weight-calculator">Open Pipe Weight Calculator</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-unit-converter]');
+  if (root) {
+    const mm = root.querySelector('[data-mm]');
+    const inch = root.querySelector('[data-inch]');
+    const copy = root.querySelector('[data-copy]');
+    const swap = root.querySelector('[data-swap]');
+    const status = root.querySelector('[data-status]');
+
+    if (mm instanceof HTMLInputElement && inch instanceof HTMLInputElement) {
+      const format = (value: number) => Number.isFinite(value)
+        ? Number(value.toPrecision(12)).toString()
+        : '';
+
+      mm.addEventListener('input', () => {
+        const value = Number(mm.value);
+        inch.value = Number.isFinite(value) ? format(value / 25.4) : '';
+      });
+
+      inch.addEventListener('input', () => {
+        const value = Number(inch.value);
+        mm.value = Number.isFinite(value) ? format(value * 25.4) : '';
+      });
+
+      swap?.addEventListener('click', () => {
+        const currentMm = mm.value;
+        mm.value = inch.value;
+        inch.value = currentMm;
+        mm.dispatchEvent(new Event('input'));
+      });
+
+      copy?.addEventListener('click', async () => {
+        const text = `${mm.value} mm = ${inch.value} in`;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = 'Result copied.';
+        } catch {
+          if (status) status.textContent = text;
+        }
+      });
+    }
+  }
+</script>
