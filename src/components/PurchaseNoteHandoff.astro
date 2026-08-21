@@ -1,3 +1,11 @@
+<style is:global>
+  .button.is-disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
+
 <script>
   const calculator = document.querySelector('[data-calculator]');
 
@@ -24,23 +32,50 @@
       const link = document.createElement('a');
       link.className = 'button button-secondary';
       link.dataset.purchaseNoteHandoff = '';
-      link.textContent = 'Start Purchase Note';
       actionRow.appendChild(link);
 
+      const disableLink = (message) => {
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled', 'true');
+        link.classList.add('is-disabled');
+        link.textContent = 'Complete inputs first';
+        link.title = message;
+      };
+
       const updateLink = () => {
-        const url = new URL('/howspec/purchase-note', window.location.origin);
         const factor = geometryUnit.value === 'in' ? 25.4 : 1;
         const odMm = Number(od.value) * factor;
         const wallMm = Number(wall.value) * factor;
+        const lengthValue = Number(length.value);
+        const quantityValue = Number(qty.value);
+        const geometryValid = Number.isFinite(odMm)
+          && Number.isFinite(wallMm)
+          && odMm > 0
+          && wallMm > 0
+          && 2 * wallMm < odMm;
+        const orderValuesValid = Number.isFinite(lengthValue)
+          && lengthValue > 0
+          && Number.isInteger(quantityValue)
+          && quantityValue > 0;
 
+        if (!geometryValid || !orderValuesValid) {
+          disableLink('Enter valid pipe geometry, a positive length and a positive whole-number quantity before creating a Purchase Note.');
+          return;
+        }
+
+        const url = new URL('/howspec/purchase-note', window.location.origin);
         url.searchParams.set('size', size.value);
-        if (Number.isFinite(odMm) && odMm > 0) url.searchParams.set('od', String(Number(odMm.toPrecision(10))));
-        if (Number.isFinite(wallMm) && wallMm > 0) url.searchParams.set('wall', String(Number(wallMm.toPrecision(10))));
-        if (Number(length.value) > 0) url.searchParams.set('length', length.value);
+        url.searchParams.set('od', String(Number(odMm.toPrecision(10))));
+        url.searchParams.set('wall', String(Number(wallMm.toPrecision(10))));
+        url.searchParams.set('length', length.value);
         url.searchParams.set('lengthUnit', lengthUnit.value);
-        if (Number(qty.value) > 0) url.searchParams.set('qty', qty.value);
+        url.searchParams.set('qty', qty.value);
 
         link.href = `${url.pathname}${url.search}`;
+        link.removeAttribute('aria-disabled');
+        link.classList.remove('is-disabled');
+        link.textContent = 'Start Purchase Note';
+        link.title = 'Carry the current size, geometry, length and quantity into a preliminary Purchase Note draft.';
       };
 
       calculator.addEventListener('input', updateLink);
