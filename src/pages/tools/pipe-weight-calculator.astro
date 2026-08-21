@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const sizes = [
+  {label:'DN 50 · 50A · NPS 2', od:60.3, wall:3.91, published:5.44},
+  {label:'DN 65 · 65A · NPS 2 1/2', od:73.0, wall:5.16, published:8.63},
+  {label:'DN 80 · 80A · NPS 3', od:88.9, wall:5.49, published:11.29},
+  {label:'DN 100 · 100A · NPS 4', od:114.3, wall:6.02, published:16.07},
+  {label:'DN 150 · 150A · NPS 6', od:168.3, wall:7.11, published:28.26},
+  {label:'DN 200 · 200A · NPS 8', od:219.1, wall:8.18, published:42.55}
+];
+---
+<BaseLayout title="Pipe Weight Calculator — HowNote" description="Calculate theoretical steel pipe weight by standard reference size or custom geometry.">
+  <section class="hero container">
+    <div class="eyebrow">HowNote Tools · Pipe / Tube</div>
+    <h1>Pipe Weight Calculator</h1>
+    <p>Calculate theoretical carbon-steel pipe mass from OD and wall thickness. Standard reference sizes are kept separate from the underlying geometry.</p>
+  </section>
+
+  <section class="container calculator" data-calculator>
+    <div class="panel">
+      <div class="field">
+        <label for="size">Reference size</label>
+        <select id="size" data-size>
+          {sizes.map((s, i) => <option value={i}>{s.label} · Sch 40</option>)}
+          <option value="custom">Custom geometry</option>
+        </select>
+      </div>
+      <div class="field"><label for="od">Outside diameter (mm)</label><input id="od" data-od type="number" step="0.01" value="60.3" /></div>
+      <div class="field"><label for="wall">Wall thickness (mm)</label><input id="wall" data-wall type="number" step="0.01" value="3.91" /></div>
+      <div class="field"><label for="density">Density (kg/m³)</label><input id="density" data-density type="number" step="1" value="7850" /></div>
+      <div class="field"><label for="length">Length per piece (m)</label><input id="length" data-length type="number" step="0.1" value="6" /></div>
+      <div class="field"><label for="qty">Quantity</label><input id="qty" data-qty type="number" step="1" value="10" /></div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Calculated result</div>
+      <div class="result-main"><span data-total>—</span> kg total</div>
+      <div class="result-grid">
+        <div class="result-item"><span>Inside diameter</span><strong data-id>—</strong></div>
+        <div class="result-item"><span>Weight per metre</span><strong data-kgm>—</strong></div>
+        <div class="result-item"><span>Weight per piece</span><strong data-piece>—</strong></div>
+        <div class="result-item"><span>Published reference</span><strong data-published>—</strong></div>
+      </div>
+      <p class="muted" style="margin-top:18px">Formula: π/4 × (OD² − ID²) × density. The 7,850 kg/m³ density is a theoretical carbon-steel reference assumption. Verify the governing standard, material grade and supplier documents before ordering.</p>
+    </div>
+  </section>
+
+  <section class="container" style="padding-bottom:72px">
+    <div class="card">
+      <h2>Initial Schedule 40 reference subset</h2>
+      <p class="muted">Standard identity: ASME B36.10-2022. The limited OD, wall and nominal-mass subset is cross-checked from manufacturer publications and is not presented as a transcription of the copyrighted ASME table.</p>
+      <div class="table-wrap"><table><thead><tr><th>Size</th><th>OD mm</th><th>Wall mm</th><th>Published kg/m</th></tr></thead><tbody>{sizes.map((s)=><tr><td>{s.label}</td><td>{s.od}</td><td>{s.wall}</td><td>{s.published}</td></tr>)}</tbody></table></div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ sizes }}>
+  const root = document.querySelector('[data-calculator]');
+  if (root) {
+    const q = (s) => root.querySelector(s);
+    const size = q('[data-size]');
+    const od = q('[data-od]');
+    const wall = q('[data-wall]');
+    const density = q('[data-density]');
+    const length = q('[data-length]');
+    const qty = q('[data-qty]');
+    const fmt = (n, d=3) => Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
+    const calc = () => {
+      const OD = Number(od.value), W = Number(wall.value), rho = Number(density.value), L = Number(length.value), Q = Number(qty.value);
+      const ID = OD - 2 * W;
+      if (!(OD > 0 && W > 0 && ID > 0 && rho > 0 && L > 0 && Q > 0)) return;
+      const areaM2 = Math.PI / 4 * (OD*OD - ID*ID) / 1e6;
+      const kgm = areaM2 * rho;
+      const piece = kgm * L;
+      const total = piece * Q;
+      q('[data-id]').textContent = `${fmt(ID,3)} mm`;
+      q('[data-kgm]').textContent = `${fmt(kgm,3)} kg/m`;
+      q('[data-piece]').textContent = `${fmt(piece,3)} kg`;
+      q('[data-total]').textContent = fmt(total,3);
+      const row = size.value === 'custom' ? null : sizes[Number(size.value)];
+      q('[data-published]').textContent = row ? `${fmt(row.published,2)} kg/m` : 'Custom input';
+    };
+    size.addEventListener('change', () => {
+      if (size.value !== 'custom') {
+        const row = sizes[Number(size.value)]; od.value = row.od; wall.value = row.wall;
+      }
+      calc();
+    });
+    [od,wall,density,length,qty].forEach(el => el.addEventListener('input', calc));
+    calc();
+  }
+</script>
