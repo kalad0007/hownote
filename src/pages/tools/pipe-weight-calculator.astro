@@ -42,6 +42,7 @@ const sizes = [
         <div class="result-item"><span>Published reference</span><strong data-published>—</strong></div>
       </div>
       <p class="muted" style="margin-top:18px">Formula: π/4 × (OD² − ID²) × density. The 7,850 kg/m³ density is a theoretical carbon-steel reference assumption. Verify the governing standard, material grade and supplier documents before ordering.</p>
+      <a href="/tools/dn-nps-a-converter">Need to find the matching DN / NPS / A size? →</a>
     </div>
   </section>
 
@@ -65,6 +66,12 @@ const sizes = [
     const length = q('[data-length]');
     const qty = q('[data-qty]');
     const fmt = (n, d=3) => Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
+    const applySize = () => {
+      if (size.value !== 'custom') {
+        const row = sizes[Number(size.value)];
+        if (row) { od.value = row.od; wall.value = row.wall; }
+      }
+    };
     const calc = () => {
       const OD = Number(od.value), W = Number(wall.value), rho = Number(density.value), L = Number(length.value), Q = Number(qty.value);
       const ID = OD - 2 * W;
@@ -80,12 +87,12 @@ const sizes = [
       const row = size.value === 'custom' ? null : sizes[Number(size.value)];
       q('[data-published]').textContent = row ? `${fmt(row.published,2)} kg/m` : 'Custom input';
     };
-    size.addEventListener('change', () => {
-      if (size.value !== 'custom') {
-        const row = sizes[Number(size.value)]; od.value = row.od; wall.value = row.wall;
-      }
-      calc();
-    });
+    const requested = new URLSearchParams(window.location.search).get('size');
+    if (requested !== null && /^\d+$/.test(requested) && Number(requested) < sizes.length) {
+      size.value = requested;
+      applySize();
+    }
+    size.addEventListener('change', () => { applySize(); calc(); });
     [od,wall,density,length,qty].forEach(el => el.addEventListener('input', calc));
     calc();
   }
