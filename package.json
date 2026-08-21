@@ -1,6 +1,6 @@
 {
   "name": "hownote",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -10,7 +10,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "verify": "node scripts/verify-build.mjs",
+    "verify:build": "node scripts/verify-build.mjs",
+    "verify:safety": "node scripts/verify-purchase-note-safety.mjs",
+    "verify": "npm run verify:build && npm run verify:safety",
     "validate": "npm run build && npm run verify",
     "deploy": "npx wrangler@latest deploy"
   },
