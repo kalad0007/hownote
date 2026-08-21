@@ -24,6 +24,8 @@ const expectedRoutes = [
   '/sizes',
   '/standards',
   '/standards/asme-b36-10',
+  '/howspec',
+  '/howspec/purchase-note',
   '/about',
   '/contact',
   '/privacy',
