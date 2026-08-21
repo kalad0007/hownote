@@ -3,15 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout
   title="HowNote — Engineering Tools, Pipe Sizes & Standards Intelligence"
-  description="Calculate, convert and review practical pipe-size and standards information with visible evidence labels."
+  description="Calculate, convert and review practical pipe-size and standards information, then turn known requirements into a Purchase Note draft."
 >
   <section class="hero container">
     <div class="eyebrow">Find · Compare · Calculate · Decide</div>
     <h1>Practical engineering tools for real purchasing decisions.</h1>
-    <p>HowNote begins with fast calculators and size references, then connects them to standards evidence, compatibility analysis and sourcing checks.</p>
+    <p>HowNote begins with fast calculators and size references, then connects them to standards evidence, compatibility analysis and supplier-facing sourcing checks.</p>
     <div class="button-row">
       <a class="button" href="/tools/pipe-weight-calculator">Calculate pipe weight</a>
       <a class="button button-secondary" href="/tools/dn-nps-a-converter">Convert DN / NPS / A</a>
+      <a class="button button-secondary" href="/howspec/purchase-note">Build a Purchase Note draft</a>
     </div>
   </section>
 
@@ -34,6 +35,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p class="muted">Official metadata, manufacturer references, regional aliases and calculated outputs are not presented as the same evidence.</p>
       <a class="text-link" href="/standards">Browse standards →</a>
     </article>
+    <article class="card featured-card">
+      <div class="eyebrow">HowSpec</div>
+      <h2>Turn open questions into a supplier draft</h2>
+      <p class="muted">The first Purchase Note Builder separates standards, actual size, material, inspection, documents, marking, packing and unresolved confirmations.</p>
+      <a class="text-link" href="/howspec">Explore HowSpec →</a>
+    </article>
   </section>
 
   <section class="container related-section">
@@ -47,7 +54,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div><strong>4. Compare</strong><span>Dimensions, materials and test requirements</span></div>
         <div><strong>5. Decide</strong><span>Compatibility and purchase-note checks</span></div>
       </div>
-      <p class="muted">The first three stages are live in the MVP. Standard Compare, Compatibility and Purchase Note will be added only after the underlying data can support them.</p>
+      <p class="muted">Calculator, converter, standards evidence and a preliminary Purchase Note Builder are live. Standard Compare and Compatibility remain planned until verified data can support them.</p>
     </div>
   </section>
 </BaseLayout>
