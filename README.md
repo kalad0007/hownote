@@ -25,6 +25,7 @@ Unit conversion
   - Density presets and custom density
   - Published-reference comparison
   - Shareable URL state and copy result
+  - Dynamic handoff to a Purchase Note draft with current size, geometry, length and quantity
 - `/tools/dn-nps-a-converter`
 - `/tools/mm-inch-converter`
 - `/tools/kg-lb-converter`
@@ -143,7 +144,7 @@ No Supabase database is required at this stage. A database becomes relevant when
 ## Next product gates
 
 1. Confirm the production deploy and GitHub validation for v0.6.
-2. Add a direct calculator-to-Purchase-Note handoff with current geometry and quantity.
+2. Validate calculator-to-Purchase-Note handoff on desktop and mobile.
 3. Activate a working HowNote contact email before public outreach.
 4. Add `www.hownote.net` and redirect it to the canonical apex domain.
 5. Register Google Search Console and Naver Search Advisor.
