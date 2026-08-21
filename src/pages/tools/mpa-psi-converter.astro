@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="MPa to PSI Converter — MPa ↔ psi | HowNote"
+  description="Convert pressure or stress between megapascals and pounds-force per square inch."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowNote Tools · Unit Converter</div>
+    <h1>MPa ↔ PSI Converter</h1>
+    <p>Convert pressure or stress values between megapascals and pounds-force per square inch.</p>
+  </section>
+
+  <section class="container calculator compact-calculator" data-unit-converter>
+    <div class="panel">
+      <div class="field">
+        <label for="mpa">Megapascals (MPa)</label>
+        <input id="mpa" data-mpa type="number" step="any" value="1" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="psi">Pounds-force per square inch (psi)</label>
+        <input id="psi" data-psi type="number" step="any" value="145.03773773" inputmode="decimal" />
+      </div>
+      <div class="button-row">
+        <button class="button" type="button" data-copy>Copy result</button>
+        <button class="button button-secondary" type="button" data-reset>Reset</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
+    </div>
+
+    <aside class="panel">
+      <div class="eyebrow">Conversion factor</div>
+      <div class="result-main">1 MPa ≈ 145.0377377 psi</div>
+      <p class="muted">The calculation uses 1 psi = 6,894.757293168 pascals. The displayed result is rounded; the internal factor retains additional precision.</p>
+      <a class="text-link" href="https://www.nist.gov/pml/owm/metric-si/unit-conversion/pressure-and-gas-flow-unit-conversions" rel="noopener noreferrer">NIST pressure reference →</a>
+    </aside>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <h2>Pressure is not a compatibility decision</h2>
+      <p class="muted">A converted pressure value does not confirm that two products, materials or standards have equivalent design rules, safety factors, test requirements or allowable stresses.</p>
+      <a class="text-link" href="/disclaimer">Read the engineering disclaimer →</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector('[data-unit-converter]');
+  if (root) {
+    const mpa = root.querySelector('[data-mpa]');
+    const psi = root.querySelector('[data-psi]');
+    const copy = root.querySelector('[data-copy]');
+    const reset = root.querySelector('[data-reset]');
+    const status = root.querySelector('[data-status]');
+    const pascalsPerPsi = 6894.757293168;
+    const psiPerMpa = 1_000_000 / pascalsPerPsi;
+
+    if (mpa instanceof HTMLInputElement && psi instanceof HTMLInputElement) {
+      const format = (value: number) => Number.isFinite(value)
+        ? Number(value.toPrecision(12)).toString()
+        : '';
+
+      mpa.addEventListener('input', () => {
+        const value = Number(mpa.value);
+        psi.value = Number.isFinite(value) ? format(value * psiPerMpa) : '';
+      });
+
+      psi.addEventListener('input', () => {
+        const value = Number(psi.value);
+        mpa.value = Number.isFinite(value) ? format(value / psiPerMpa) : '';
+      });
+
+      reset?.addEventListener('click', () => {
+        mpa.value = '1';
+        mpa.dispatchEvent(new Event('input'));
+        if (status) status.textContent = '';
+      });
+
+      copy?.addEventListener('click', async () => {
+        const text = `${mpa.value} MPa = ${psi.value} psi`;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = 'Result copied.';
+        } catch {
+          if (status) status.textContent = text;
+        }
+      });
+    }
+  }
+</script>
