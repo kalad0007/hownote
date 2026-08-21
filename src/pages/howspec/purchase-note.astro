@@ -69,7 +69,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 
       <div class="field">
         <label for="regulatory">Regulation / certification / conformity requirements</label>
-        <textarea id="regulatory" data-regulatory rows="3" placeholder="Destination-market regulation, required certification, test or marking; write ‘to be confirmed’ when unresolved"></textarea>
+        <textarea id="regulatory" data-regulatory rows="3" placeholder="Destination-market regulation, required certification, test or marking; write ‘not applicable’ only after review"></textarea>
       </div>
 
       <div class="form-section-heading">
@@ -152,18 +152,18 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         </div>
         <div class="field">
           <label for="manufacturing-route">Manufacturing route</label>
-          <input id="manufacturing-route" data-manufacturing-route type="text" placeholder="Seamless, ERW, welded or to be confirmed" />
+          <input id="manufacturing-route" data-manufacturing-route type="text" placeholder="Seamless, ERW, welded or not applicable after review" />
         </div>
       </div>
 
       <div class="field-row">
         <div class="field">
           <label for="heat-treatment">Heat treatment / delivery condition</label>
-          <input id="heat-treatment" data-heat-treatment type="text" placeholder="Normalized, annealed, as-welded, etc." />
+          <input id="heat-treatment" data-heat-treatment type="text" placeholder="Normalized, annealed, as-welded or not applicable after review" />
         </div>
         <div class="field">
           <label for="surface">Surface treatment / coating</label>
-          <input id="surface" data-surface type="text" placeholder="Bare, oiled, galvanized, painted or specification" />
+          <input id="surface" data-surface type="text" placeholder="Bare, oiled, galvanized, painted or not applicable after review" />
         </div>
       </div>
 
@@ -194,13 +194,13 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 
       <div class="field">
         <label for="inspection-detail">Inspection / test details</label>
-        <textarea id="inspection-detail" data-inspection-detail rows="3" placeholder="Method, acceptance criteria, sampling, witness/hold points or inspector"></textarea>
+        <textarea id="inspection-detail" data-inspection-detail rows="3" placeholder="Method, acceptance criteria, sampling, witness/hold points or inspector; write ‘not applicable’ only after review"></textarea>
       </div>
 
       <div class="field-row">
         <div class="field">
           <label for="certificate">MTC / MTR / inspection certificate</label>
-          <input id="certificate" data-certificate type="text" placeholder="Required document type and issuer" />
+          <input id="certificate" data-certificate type="text" placeholder="Required document type and issuer, or not applicable after review" />
         </div>
         <div class="field">
           <label for="sample-approval">Sample / first-article approval</label>
@@ -233,7 +233,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         </div>
         <div class="field">
           <label for="shipping-mark">Shipping mark</label>
-          <textarea id="shipping-mark" data-shipping-mark rows="3" placeholder="Consignee, PO, item, quantity, gross/net weight, package number"></textarea>
+          <textarea id="shipping-mark" data-shipping-mark rows="3" placeholder="Consignee, PO, item, quantity, gross/net weight, package number or not applicable after review"></textarea>
         </div>
       </div>
 
@@ -244,7 +244,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         </div>
         <div class="field">
           <label for="document-checklist">Other required documents</label>
-          <input id="document-checklist" data-document-checklist type="text" placeholder="Packing list, COO, test reports, photos, etc." />
+          <input id="document-checklist" data-document-checklist type="text" placeholder="Packing list, COO, test reports, photos or not applicable after review" />
         </div>
       </div>
 
@@ -262,8 +262,8 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
       </div>
 
       <div class="field">
-        <label for="notes">Buyer notes</label>
-        <textarea id="notes" data-notes rows="4" placeholder="Internal assumptions, approval conditions or other context"></textarea>
+        <label for="supplier-notes">Supplier-visible notes / final comments</label>
+        <textarea id="supplier-notes" data-supplier-notes rows="4" placeholder="Enter only information that is safe and intended to appear in the copied, downloaded or printed supplier draft"></textarea>
       </div>
 
       <div class="button-row">
@@ -325,6 +325,12 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
     };
     const display = (text, fallback = 'Not specified') => text || fallback;
     const lines = (text) => text.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+    const localDateStamp = (date = new Date()) => [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0'),
+    ].join('-');
+
     const size = get('[data-size]');
     const customSize = get('[data-custom-size]');
     const dimensionStandard = get('[data-dimension-standard]');
@@ -361,6 +367,13 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         get('[data-custom-size-field]')?.classList.toggle('hidden', size.value !== 'custom');
       };
 
+      const clearReferenceFields = () => {
+        dimensionStandard.value = '';
+        schedule.value = '';
+        od.value = '';
+        wall.value = '';
+      };
+
       const applyReference = (index) => {
         const row = rows[index];
         if (!row) return;
@@ -376,19 +389,50 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 
       const reviewFlags = () => {
         const flags = [];
-        if (!value('[data-product-description]')) flags.push('Product description is missing.');
-        if (!value('[data-product-standard]')) flags.push('Product standard and edition must be confirmed.');
-        if (!value('[data-dimension-standard]')) flags.push('Dimension standard and edition must be confirmed.');
+        const addMissing = (selector, message) => {
+          if (!value(selector)) flags.push(message);
+        };
+
+        addMissing('[data-product-description]', 'Product description is missing.');
+        addMissing('[data-destination]', 'Destination market is unresolved.');
+        addMissing('[data-intended-use]', 'Intended use / service condition is unresolved.');
+        addMissing('[data-product-standard]', 'Product standard and edition must be confirmed.');
+        addMissing('[data-dimension-standard]', 'Dimension standard and edition must be confirmed.');
+        addMissing('[data-regulatory]', 'Destination-market regulation / conformity requirements are unresolved.');
+
         if (size.value === 'custom' && !value('[data-custom-size]')) flags.push('Custom nominal designation is missing.');
-        if (!(Number(od.value) > 0) || !(Number(wall.value) > 0)) flags.push('Actual OD and wall thickness must be confirmed.');
-        if (!value('[data-dimension-tolerance]')) flags.push('Dimension / wall tolerance is unresolved.');
-        if (!value('[data-material-grade]')) flags.push('Material grade is unresolved.');
-        if (!value('[data-regulatory]')) flags.push('Destination-market regulation / conformity requirements are unresolved.');
+        if (!value('[data-schedule]')) flags.push('Schedule / series is unresolved.');
+
+        const odValue = Number(od.value);
+        const wallValue = Number(wall.value);
+        if (!(odValue > 0) || !(wallValue > 0)) {
+          flags.push('Actual OD and wall thickness must be confirmed.');
+        } else if (2 * wallValue >= odValue) {
+          flags.push('Actual OD and wall thickness are geometrically impossible: 2 × wall must be less than OD.');
+        }
+
+        if (!(Number(length.value) > 0)) flags.push('Length per piece must be a positive value.');
+        if (!(Number(qty.value) > 0) || !Number.isInteger(Number(qty.value))) flags.push('Quantity must be a positive whole number.');
+        addMissing('[data-dimension-tolerance]', 'Dimension / wall tolerance is unresolved.');
+        addMissing('[data-length-tolerance]', 'Length tolerance is unresolved.');
+        addMissing('[data-material-grade]', 'Material grade is unresolved.');
+        addMissing('[data-manufacturing-route]', 'Manufacturing route is unresolved.');
+        addMissing('[data-heat-treatment]', 'Heat treatment / delivery condition is unresolved.');
+        addMissing('[data-surface]', 'Surface treatment / coating requirement is unresolved.');
+
         if (inspectionItems().length === 0 && !value('[data-inspection-detail]')) flags.push('Inspection and test requirements are unresolved.');
-        if (!value('[data-certificate]')) flags.push('MTC / MTR / certificate requirement is unresolved.');
-        if (!value('[data-marking]')) flags.push('Product marking requirement is unresolved.');
-        if (!value('[data-packing]')) flags.push('Packing and protection requirement is unresolved.');
+        addMissing('[data-certificate]', 'MTC / MTR / certificate requirement is unresolved.');
         if (value('[data-sample-approval]') === 'To be confirmed') flags.push('Sample / first-article approval remains to be confirmed.');
+        addMissing('[data-marking]', 'Product marking requirement is unresolved.');
+        addMissing('[data-packing]', 'Packing and protection requirement is unresolved.');
+        addMissing('[data-shipping-mark]', 'Shipping mark requirement is unresolved.');
+        addMissing('[data-delivery-term]', 'Delivery term / destination is unresolved.');
+        addMissing('[data-document-checklist]', 'Other required documents are unresolved.');
+
+        for (const item of lines(value('[data-confirmations]'))) {
+          flags.push(`Supplier confirmation: ${item}`);
+        }
+
         return flags;
       };
 
@@ -396,7 +440,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         const flags = reviewFlags();
         const inspections = inspectionItems();
         const confirmations = lines(value('[data-confirmations]'));
-        const generated = new Date().toISOString().slice(0, 10);
+        const generated = localDateStamp();
         const reference = display(value('[data-reference]'), 'Unassigned');
         const selectedSize = selectedNominal();
         const lengthText = `${display(length.value)} ${lengthUnit.value}`;
@@ -406,7 +450,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 
         const note = [
           'HOWSPEC PURCHASE NOTE — PRELIMINARY DRAFT',
-          `Generated: ${generated}`,
+          `Generated (local date): ${generated}`,
           `Project / RFQ reference: ${reference}`,
           'Status: Drafting aid only. Supplier confirmation and final PO/contract review required.',
           '',
@@ -425,7 +469,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
           '',
           '3. SIZE AND QUANTITY',
           `- Nominal designation: ${selectedSize}`,
-          `- Schedule / series: ${display(value('[data-schedule]'))}`,
+          `- Schedule / series: ${display(value('[data-schedule]'), 'To be confirmed')}`,
           `- Actual outside diameter: ${display(value('[data-od]'))} mm`,
           `- Wall thickness: ${display(value('[data-wall]'))} mm`,
           `- Dimension / wall tolerance: ${display(value('[data-dimension-tolerance]'), 'To be confirmed')}`,
@@ -456,8 +500,8 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
           '7. SUPPLIER CONFIRMATIONS / OPEN ITEMS',
           ...confirmationLines,
           '',
-          '8. BUYER NOTES',
-          display(value('[data-notes]'), 'No buyer notes entered.'),
+          '8. ADDITIONAL SUPPLIER-VISIBLE NOTES',
+          display(value('[data-supplier-notes]'), 'No additional supplier-visible notes entered.'),
           '',
           'IMPORTANT',
           'This draft does not establish standard equivalence, product compatibility, regulatory compliance or supplier capability. Verify the governing documents, exact product data, destination-market rules, supplier confirmation, certificates and final PO/contract language before release.',
@@ -492,10 +536,18 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
       const loadUrlState = () => {
         const params = new URLSearchParams(window.location.search);
         const requestedSize = params.get('size');
-        if (requestedSize === 'custom') size.value = 'custom';
-        else if (requestedSize !== null && /^\d+$/.test(requestedSize) && Number(requestedSize) < rows.length) size.value = requestedSize;
 
-        if (size.value !== 'custom') applyReference(Number(size.value));
+        if (requestedSize === 'custom') {
+          size.value = 'custom';
+          clearReferenceFields();
+        } else if (requestedSize !== null && /^\d+$/.test(requestedSize) && Number(requestedSize) < rows.length) {
+          size.value = requestedSize;
+          applyReference(Number(size.value));
+        } else {
+          size.value = '0';
+          applyReference(0);
+        }
+
         const assignPositive = (name, input) => {
           const raw = params.get(name);
           if (raw !== null && Number(raw) > 0) input.value = raw;
@@ -514,7 +566,8 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 
       size.addEventListener('change', () => {
         toggleCustomSize();
-        if (size.value !== 'custom') applyReference(Number(size.value));
+        if (size.value === 'custom') clearReferenceFields();
+        else applyReference(Number(size.value));
         render();
       });
 
@@ -551,7 +604,7 @@ import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
         document.body.appendChild(link);
         link.click();
         link.remove();
-        URL.revokeObjectURL(url);
+        window.setTimeout(() => URL.revokeObjectURL(url), 0);
         if (status) status.textContent = 'TXT file prepared.';
       });
 
