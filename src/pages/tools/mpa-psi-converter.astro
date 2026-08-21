@@ -60,24 +60,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const format = (value: number) => Number.isFinite(value)
         ? Number(value.toPrecision(12)).toString()
         : '';
+      const read = (input: HTMLInputElement) => input.value.trim() === '' ? null : Number(input.value);
+      const clearStatus = () => { if (status) status.textContent = ''; };
 
       mpa.addEventListener('input', () => {
-        const value = Number(mpa.value);
-        psi.value = Number.isFinite(value) ? format(value * psiPerMpa) : '';
+        const value = read(mpa);
+        psi.value = value !== null && Number.isFinite(value) ? format(value * psiPerMpa) : '';
+        clearStatus();
       });
 
       psi.addEventListener('input', () => {
-        const value = Number(psi.value);
-        mpa.value = Number.isFinite(value) ? format(value / psiPerMpa) : '';
+        const value = read(psi);
+        mpa.value = value !== null && Number.isFinite(value) ? format(value / psiPerMpa) : '';
+        clearStatus();
       });
 
       reset?.addEventListener('click', () => {
         mpa.value = '1';
         mpa.dispatchEvent(new Event('input'));
-        if (status) status.textContent = '';
       });
 
       copy?.addEventListener('click', async () => {
+        const mpaValue = read(mpa);
+        const psiValue = read(psi);
+        if (mpaValue === null || psiValue === null || !Number.isFinite(mpaValue) || !Number.isFinite(psiValue)) {
+          if (status) status.textContent = 'Enter a valid value before copying.';
+          return;
+        }
         const text = `${mpa.value} MPa = ${psi.value} psi`;
         try {
           await navigator.clipboard.writeText(text);
