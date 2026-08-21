@@ -1,0 +1,4 @@
+/tools/pipe-weight /tools/pipe-weight-calculator 301
+/tools/pipe-calculator /tools/pipe-weight-calculator 301
+/tools/dn-nps-converter /tools/dn-nps-a-converter 301
+/tools/dn-to-nps /tools/dn-nps-a-converter 301
