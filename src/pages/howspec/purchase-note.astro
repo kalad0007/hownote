@@ -1,0 +1,574 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
+---
+<BaseLayout
+  title="Purchase Note Builder — Supplier & PO Draft | HowSpec"
+  description="Create a browser-only preliminary Purchase Note for pipe size, standards, material, inspection, documents, marking, packing and supplier confirmations."
+>
+  <section class="hero container">
+    <div class="eyebrow">HowSpec · Purchase Note</div>
+    <h1>Turn known requirements into a supplier-confirmation draft.</h1>
+    <p>This first Purchase Note Builder organizes information you already know and keeps missing items visible. It does not determine standard equivalence, regulatory compliance, product suitability or supplier capability.</p>
+    <div class="badge-row">
+      <span class="badge badge-calculated">BROWSER-ONLY</span>
+      <span class="badge">PRELIMINARY DRAFT</span>
+      <span class="badge">NO ACCOUNT OR DATABASE</span>
+    </div>
+  </section>
+
+  <section class="container purchase-note-layout" data-purchase-note-builder>
+    <form class="panel purchase-note-form" data-form novalidate>
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">01 · Identification</div>
+          <h2>Project and product</h2>
+        </div>
+        <span class="badge">INPUT</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="reference">Project / RFQ reference</label>
+          <input id="reference" data-reference type="text" placeholder="Project, RFQ or PO draft number" />
+        </div>
+        <div class="field">
+          <label for="destination">Destination market</label>
+          <input id="destination" data-destination type="text" placeholder="Country, region or job site" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="product-description">Product description</label>
+        <input id="product-description" data-product-description type="text" placeholder="Example: Carbon steel seamless pipe" />
+      </div>
+
+      <div class="field">
+        <label for="intended-use">Intended use / service condition</label>
+        <textarea id="intended-use" data-intended-use rows="3" placeholder="Fluid, pressure/temperature, environment, end use or other known conditions"></textarea>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">02 · Governing documents</div>
+          <h2>Standards and editions</h2>
+        </div>
+        <span class="badge badge-official">VERIFY EDITION</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="product-standard">Product standard and edition</label>
+          <input id="product-standard" data-product-standard type="text" placeholder="Example: ASTM A53/A53M-2022" />
+        </div>
+        <div class="field">
+          <label for="dimension-standard">Dimension standard and edition</label>
+          <input id="dimension-standard" data-dimension-standard type="text" value="ASME B36.10-2022" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="regulatory">Regulation / certification / conformity requirements</label>
+        <textarea id="regulatory" data-regulatory rows="3" placeholder="Destination-market regulation, required certification, test or marking; write ‘to be confirmed’ when unresolved"></textarea>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">03 · Size and quantity</div>
+          <h2>Nominal designation and actual geometry</h2>
+        </div>
+        <span class="badge badge-manufacturer">SIZE REFERENCE</span>
+      </div>
+
+      <div class="field">
+        <label for="nominal-size">Nominal pipe size</label>
+        <select id="nominal-size" data-size>
+          {rows.map((row, i) => <option value={i}>{pipeLabel(row)} · {row.schedule}</option>)}
+          <option value="custom">Custom / other size</option>
+        </select>
+      </div>
+
+      <div class="field hidden" data-custom-size-field>
+        <label for="custom-size">Custom nominal designation</label>
+        <input id="custom-size" data-custom-size type="text" placeholder="Enter DN, NPS, A or supplier designation exactly as required" />
+      </div>
+
+      <div class="field-row field-row-three">
+        <div class="field">
+          <label for="schedule">Schedule / series</label>
+          <input id="schedule" data-schedule type="text" value="Schedule 40" />
+        </div>
+        <div class="field">
+          <label for="outside-diameter">Actual OD (mm)</label>
+          <input id="outside-diameter" data-od type="number" step="any" value="60.3" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="wall-thickness">Wall (mm)</label>
+          <input id="wall-thickness" data-wall type="number" step="any" value="3.91" inputmode="decimal" />
+        </div>
+      </div>
+
+      <div class="field-row field-row-three">
+        <div class="field">
+          <label for="length">Length per piece</label>
+          <input id="length" data-length type="number" step="any" value="6" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="length-unit">Length unit</label>
+          <select id="length-unit" data-length-unit>
+            <option value="m">Meters (m)</option>
+            <option value="ft">Feet (ft)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="quantity">Quantity</label>
+          <input id="quantity" data-qty type="number" step="1" min="1" value="10" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="dimension-tolerance">Dimension / wall tolerance</label>
+          <input id="dimension-tolerance" data-dimension-tolerance type="text" placeholder="State governing clause or numeric tolerance" />
+        </div>
+        <div class="field">
+          <label for="length-tolerance">Length tolerance</label>
+          <input id="length-tolerance" data-length-tolerance type="text" placeholder="Example: +10 / −0 mm or standard clause" />
+        </div>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">04 · Material and condition</div>
+          <h2>Grade, properties and processing</h2>
+        </div>
+        <span class="badge">PRODUCT REQUIREMENT</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="material-grade">Material grade</label>
+          <input id="material-grade" data-material-grade type="text" placeholder="Exact grade and suffix" />
+        </div>
+        <div class="field">
+          <label for="manufacturing-route">Manufacturing route</label>
+          <input id="manufacturing-route" data-manufacturing-route type="text" placeholder="Seamless, ERW, welded or to be confirmed" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="heat-treatment">Heat treatment / delivery condition</label>
+          <input id="heat-treatment" data-heat-treatment type="text" placeholder="Normalized, annealed, as-welded, etc." />
+        </div>
+        <div class="field">
+          <label for="surface">Surface treatment / coating</label>
+          <input id="surface" data-surface type="text" placeholder="Bare, oiled, galvanized, painted or specification" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="properties">Chemical / mechanical property requirements</label>
+        <textarea id="properties" data-properties rows="3" placeholder="Reference the governing standard/grade or list transaction-specific requirements"></textarea>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">05 · Inspection and documents</div>
+          <h2>Tests, certificates and approvals</h2>
+        </div>
+        <span class="badge">CONFORMITY</span>
+      </div>
+
+      <fieldset class="checkbox-fieldset">
+        <legend>Required inspection / testing</legend>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" data-inspection value="Visual inspection" /> Visual inspection</label>
+          <label><input type="checkbox" data-inspection value="Dimensional inspection" /> Dimensional inspection</label>
+          <label><input type="checkbox" data-inspection value="Hydrostatic test" /> Hydrostatic test</label>
+          <label><input type="checkbox" data-inspection value="NDT" /> NDT</label>
+          <label><input type="checkbox" data-inspection value="Third-party inspection" /> Third-party inspection</label>
+          <label><input type="checkbox" data-inspection value="Pre-shipment inspection" /> Pre-shipment inspection</label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="inspection-detail">Inspection / test details</label>
+        <textarea id="inspection-detail" data-inspection-detail rows="3" placeholder="Method, acceptance criteria, sampling, witness/hold points or inspector"></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="certificate">MTC / MTR / inspection certificate</label>
+          <input id="certificate" data-certificate type="text" placeholder="Required document type and issuer" />
+        </div>
+        <div class="field">
+          <label for="sample-approval">Sample / first-article approval</label>
+          <select id="sample-approval" data-sample-approval>
+            <option value="To be confirmed">To be confirmed</option>
+            <option value="Required before production">Required before production</option>
+            <option value="Required before shipment">Required before shipment</option>
+            <option value="Not required by buyer">Not required by buyer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">06 · Marking and logistics</div>
+          <h2>Identification, packing and delivery</h2>
+        </div>
+        <span class="badge">TRADE CHECK</span>
+      </div>
+
+      <div class="field">
+        <label for="marking">Product marking</label>
+        <textarea id="marking" data-marking rows="3" placeholder="Standard, grade, size, heat/lot, manufacturer, country of origin and other required marks"></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="packing">Packing and protection</label>
+          <textarea id="packing" data-packing rows="3" placeholder="Bundle, caps, rust prevention, moisture protection, labels, pallet/crate"></textarea>
+        </div>
+        <div class="field">
+          <label for="shipping-mark">Shipping mark</label>
+          <textarea id="shipping-mark" data-shipping-mark rows="3" placeholder="Consignee, PO, item, quantity, gross/net weight, package number"></textarea>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="delivery-term">Delivery term / destination</label>
+          <input id="delivery-term" data-delivery-term type="text" placeholder="Incoterm, port, warehouse or job site" />
+        </div>
+        <div class="field">
+          <label for="document-checklist">Other required documents</label>
+          <input id="document-checklist" data-document-checklist type="text" placeholder="Packing list, COO, test reports, photos, etc." />
+        </div>
+      </div>
+
+      <div class="form-section-heading">
+        <div>
+          <div class="eyebrow">07 · Open items</div>
+          <h2>Supplier confirmations and notes</h2>
+        </div>
+        <span class="badge">DO NOT HIDE GAPS</span>
+      </div>
+
+      <div class="field">
+        <label for="confirmations">Additional supplier confirmations</label>
+        <textarea id="confirmations" data-confirmations rows="5" placeholder="One question or unresolved point per line"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="notes">Buyer notes</label>
+        <textarea id="notes" data-notes rows="4" placeholder="Internal assumptions, approval conditions or other context"></textarea>
+      </div>
+
+      <div class="button-row">
+        <button class="button" type="button" data-refresh>Refresh draft</button>
+        <button class="button button-secondary" type="reset" data-reset>Reset</button>
+      </div>
+      <p class="muted privacy-note">Inputs remain in this browser page and are not submitted to a HowNote server by this MVP.</p>
+    </form>
+
+    <aside class="panel purchase-note-preview-panel">
+      <div class="preview-heading">
+        <div>
+          <div class="eyebrow">Generated draft</div>
+          <h2>Purchase Note</h2>
+        </div>
+        <span class="badge" data-flag-count>—</span>
+      </div>
+
+      <div class="review-flags" data-review-flags aria-live="polite"></div>
+      <pre class="note-preview" data-note-output tabindex="0"></pre>
+
+      <div class="button-row preview-actions">
+        <button class="button" type="button" data-copy>Copy note</button>
+        <button class="button button-secondary" type="button" data-download>Download TXT</button>
+        <button class="button button-secondary" type="button" data-print>Print</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
+      <p class="muted preview-disclaimer">Use this draft only after reviewing the governing standards, destination-market rules, supplier confirmation, certificate requirements and final contract/PO language.</p>
+    </aside>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <h2>What this builder does not decide</h2>
+      <div class="boundary-grid">
+        <div><strong>Standard equivalence</strong><span>Not assessed</span></div>
+        <div><strong>Product compatibility</strong><span>Not assessed</span></div>
+        <div><strong>Regulatory compliance</strong><span>Not assessed</span></div>
+        <div><strong>Supplier capability</strong><span>Not assessed</span></div>
+      </div>
+      <p class="muted">Those decisions require verified standards, exact product data, destination-market requirements and supporting supplier or inspection evidence.</p>
+      <div class="button-row">
+        <a class="button button-secondary" href="/tools/pipe-weight-calculator">Return to Pipe Calculator</a>
+        <a class="button button-secondary" href="/howspec">HowSpec overview</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ rows }}>
+  const root = document.querySelector('[data-purchase-note-builder]');
+  if (root) {
+    const get = (selector) => root.querySelector(selector);
+    const value = (selector) => {
+      const element = get(selector);
+      return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement
+        ? element.value.trim()
+        : '';
+    };
+    const display = (text, fallback = 'Not specified') => text || fallback;
+    const lines = (text) => text.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+    const size = get('[data-size]');
+    const customSize = get('[data-custom-size]');
+    const dimensionStandard = get('[data-dimension-standard]');
+    const schedule = get('[data-schedule]');
+    const od = get('[data-od]');
+    const wall = get('[data-wall]');
+    const length = get('[data-length]');
+    const lengthUnit = get('[data-length-unit]');
+    const qty = get('[data-qty]');
+    const output = get('[data-note-output]');
+    const flagBox = get('[data-review-flags]');
+    const flagCount = get('[data-flag-count]');
+    const status = get('[data-status]');
+
+    const validControls = size instanceof HTMLSelectElement
+      && customSize instanceof HTMLInputElement
+      && dimensionStandard instanceof HTMLInputElement
+      && schedule instanceof HTMLInputElement
+      && od instanceof HTMLInputElement
+      && wall instanceof HTMLInputElement
+      && length instanceof HTMLInputElement
+      && lengthUnit instanceof HTMLSelectElement
+      && qty instanceof HTMLInputElement
+      && output instanceof HTMLElement;
+
+    if (validControls) {
+      const selectedRow = () => size.value === 'custom' ? null : rows[Number(size.value)] || null;
+      const selectedNominal = () => {
+        const row = selectedRow();
+        return row ? `${row.dn} / ${row.a} / ${row.nps}` : display(customSize.value.trim(), 'Custom / unresolved');
+      };
+
+      const toggleCustomSize = () => {
+        get('[data-custom-size-field]')?.classList.toggle('hidden', size.value !== 'custom');
+      };
+
+      const applyReference = (index) => {
+        const row = rows[index];
+        if (!row) return;
+        dimensionStandard.value = row.standard;
+        schedule.value = row.schedule;
+        od.value = String(row.odMm);
+        wall.value = String(row.wallMm);
+      };
+
+      const inspectionItems = () => Array.from(root.querySelectorAll('[data-inspection]:checked'))
+        .filter((item) => item instanceof HTMLInputElement)
+        .map((item) => item.value);
+
+      const reviewFlags = () => {
+        const flags = [];
+        if (!value('[data-product-description]')) flags.push('Product description is missing.');
+        if (!value('[data-product-standard]')) flags.push('Product standard and edition must be confirmed.');
+        if (!value('[data-dimension-standard]')) flags.push('Dimension standard and edition must be confirmed.');
+        if (size.value === 'custom' && !value('[data-custom-size]')) flags.push('Custom nominal designation is missing.');
+        if (!(Number(od.value) > 0) || !(Number(wall.value) > 0)) flags.push('Actual OD and wall thickness must be confirmed.');
+        if (!value('[data-dimension-tolerance]')) flags.push('Dimension / wall tolerance is unresolved.');
+        if (!value('[data-material-grade]')) flags.push('Material grade is unresolved.');
+        if (!value('[data-regulatory]')) flags.push('Destination-market regulation / conformity requirements are unresolved.');
+        if (inspectionItems().length === 0 && !value('[data-inspection-detail]')) flags.push('Inspection and test requirements are unresolved.');
+        if (!value('[data-certificate]')) flags.push('MTC / MTR / certificate requirement is unresolved.');
+        if (!value('[data-marking]')) flags.push('Product marking requirement is unresolved.');
+        if (!value('[data-packing]')) flags.push('Packing and protection requirement is unresolved.');
+        if (value('[data-sample-approval]') === 'To be confirmed') flags.push('Sample / first-article approval remains to be confirmed.');
+        return flags;
+      };
+
+      const buildNote = () => {
+        const flags = reviewFlags();
+        const inspections = inspectionItems();
+        const confirmations = lines(value('[data-confirmations]'));
+        const generated = new Date().toISOString().slice(0, 10);
+        const reference = display(value('[data-reference]'), 'Unassigned');
+        const selectedSize = selectedNominal();
+        const lengthText = `${display(length.value)} ${lengthUnit.value}`;
+        const quantityText = display(qty.value);
+        const flagLines = flags.length ? flags.map((flag) => `- ${flag}`) : ['- No automatic missing-field flags. Manual technical review is still required.'];
+        const confirmationLines = confirmations.length ? confirmations.map((item) => `- ${item}`) : ['- No additional supplier confirmation was entered. Review the flags above.'];
+
+        const note = [
+          'HOWSPEC PURCHASE NOTE — PRELIMINARY DRAFT',
+          `Generated: ${generated}`,
+          `Project / RFQ reference: ${reference}`,
+          'Status: Drafting aid only. Supplier confirmation and final PO/contract review required.',
+          '',
+          'REVIEW FLAGS',
+          ...flagLines,
+          '',
+          '1. PRODUCT IDENTIFICATION',
+          `- Product: ${display(value('[data-product-description]'))}`,
+          `- Intended use / service: ${display(value('[data-intended-use]'))}`,
+          `- Destination market: ${display(value('[data-destination]'))}`,
+          '',
+          '2. GOVERNING DOCUMENTS',
+          `- Product standard and edition: ${display(value('[data-product-standard]'))}`,
+          `- Dimension standard and edition: ${display(value('[data-dimension-standard]'))}`,
+          `- Regulation / certification / conformity: ${display(value('[data-regulatory]'), 'To be confirmed')}`,
+          '',
+          '3. SIZE AND QUANTITY',
+          `- Nominal designation: ${selectedSize}`,
+          `- Schedule / series: ${display(value('[data-schedule]'))}`,
+          `- Actual outside diameter: ${display(value('[data-od]'))} mm`,
+          `- Wall thickness: ${display(value('[data-wall]'))} mm`,
+          `- Dimension / wall tolerance: ${display(value('[data-dimension-tolerance]'), 'To be confirmed')}`,
+          `- Length per piece: ${lengthText}`,
+          `- Length tolerance: ${display(value('[data-length-tolerance]'), 'To be confirmed')}`,
+          `- Quantity: ${quantityText}`,
+          '',
+          '4. MATERIAL AND CONDITION',
+          `- Material grade: ${display(value('[data-material-grade]'), 'To be confirmed')}`,
+          `- Manufacturing route: ${display(value('[data-manufacturing-route]'), 'To be confirmed')}`,
+          `- Heat treatment / delivery condition: ${display(value('[data-heat-treatment]'), 'To be confirmed')}`,
+          `- Surface treatment / coating: ${display(value('[data-surface]'), 'To be confirmed')}`,
+          `- Chemical / mechanical properties: ${display(value('[data-properties]'), 'According to the confirmed product standard and grade, plus any transaction-specific requirements')}`,
+          '',
+          '5. INSPECTION AND DOCUMENTS',
+          `- Required inspection / testing: ${inspections.length ? inspections.join(', ') : 'To be confirmed'}`,
+          `- Inspection / test details: ${display(value('[data-inspection-detail]'), 'To be confirmed')}`,
+          `- MTC / MTR / certificate: ${display(value('[data-certificate]'), 'To be confirmed')}`,
+          `- Sample / first-article approval: ${display(value('[data-sample-approval]'))}`,
+          `- Other required documents: ${display(value('[data-document-checklist]'), 'To be confirmed')}`,
+          '',
+          '6. MARKING, PACKING AND DELIVERY',
+          `- Product marking: ${display(value('[data-marking]'), 'To be confirmed')}`,
+          `- Packing and protection: ${display(value('[data-packing]'), 'To be confirmed')}`,
+          `- Shipping mark: ${display(value('[data-shipping-mark]'), 'To be confirmed')}`,
+          `- Delivery term / destination: ${display(value('[data-delivery-term]'), 'To be confirmed')}`,
+          '',
+          '7. SUPPLIER CONFIRMATIONS / OPEN ITEMS',
+          ...confirmationLines,
+          '',
+          '8. BUYER NOTES',
+          display(value('[data-notes]'), 'No buyer notes entered.'),
+          '',
+          'IMPORTANT',
+          'This draft does not establish standard equivalence, product compatibility, regulatory compliance or supplier capability. Verify the governing documents, exact product data, destination-market rules, supplier confirmation, certificates and final PO/contract language before release.',
+        ].join('\n');
+
+        return { note, flags };
+      };
+
+      const render = () => {
+        const { note, flags } = buildNote();
+        output.textContent = note;
+
+        if (flagBox) {
+          flagBox.replaceChildren();
+          const heading = document.createElement('strong');
+          heading.textContent = flags.length ? 'Items requiring confirmation' : 'Automatic review flags';
+          flagBox.appendChild(heading);
+          const list = document.createElement('ul');
+          const items = flags.length ? flags : ['No automatic missing-field flags. Manual technical review is still required.'];
+          for (const item of items) {
+            const li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+          }
+          flagBox.appendChild(list);
+          flagBox.classList.toggle('flags-clear', flags.length === 0);
+        }
+        if (flagCount) flagCount.textContent = `${flags.length} OPEN`;
+        return note;
+      };
+
+      const loadUrlState = () => {
+        const params = new URLSearchParams(window.location.search);
+        const requestedSize = params.get('size');
+        if (requestedSize === 'custom') size.value = 'custom';
+        else if (requestedSize !== null && /^\d+$/.test(requestedSize) && Number(requestedSize) < rows.length) size.value = requestedSize;
+
+        if (size.value !== 'custom') applyReference(Number(size.value));
+        const assignPositive = (name, input) => {
+          const raw = params.get(name);
+          if (raw !== null && Number(raw) > 0) input.value = raw;
+        };
+        assignPositive('od', od);
+        assignPositive('wall', wall);
+        assignPositive('length', length);
+        assignPositive('qty', qty);
+        const requestedLengthUnit = params.get('lengthUnit');
+        if (requestedLengthUnit === 'm' || requestedLengthUnit === 'ft') lengthUnit.value = requestedLengthUnit;
+        toggleCustomSize();
+      };
+
+      loadUrlState();
+      render();
+
+      size.addEventListener('change', () => {
+        toggleCustomSize();
+        if (size.value !== 'custom') applyReference(Number(size.value));
+        render();
+      });
+
+      root.querySelectorAll('input, textarea, select').forEach((control) => {
+        if (control !== size) {
+          control.addEventListener('input', render);
+          control.addEventListener('change', render);
+        }
+      });
+
+      get('[data-refresh]')?.addEventListener('click', () => {
+        render();
+        if (status) status.textContent = 'Draft refreshed.';
+      });
+
+      get('[data-copy]')?.addEventListener('click', async () => {
+        const note = render();
+        try {
+          await navigator.clipboard.writeText(note);
+          if (status) status.textContent = 'Purchase Note copied.';
+        } catch {
+          if (status) status.textContent = 'Copy was blocked. Select the note preview and copy it manually.';
+        }
+      });
+
+      get('[data-download]')?.addEventListener('click', () => {
+        const note = render();
+        const blob = new Blob([note], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const ref = value('[data-reference]').replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '') || 'draft';
+        link.href = url;
+        link.download = `howspec-purchase-note-${ref}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        if (status) status.textContent = 'TXT file prepared.';
+      });
+
+      get('[data-print]')?.addEventListener('click', () => {
+        render();
+        window.print();
+      });
+
+      get('[data-form]')?.addEventListener('reset', () => {
+        window.setTimeout(() => {
+          size.value = '0';
+          applyReference(0);
+          toggleCustomSize();
+          render();
+          if (status) status.textContent = 'Form reset.';
+        }, 0);
+      });
+    }
+  }
+</script>
