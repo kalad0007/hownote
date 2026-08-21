@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const purchaseNote = readFileSync(join(root, 'src/pages/howspec/purchase-note.astro'), 'utf8');
 const handoff = readFileSync(join(root, 'src/components/PurchaseNoteHandoff.astro'), 'utf8');
 const failures = [];
