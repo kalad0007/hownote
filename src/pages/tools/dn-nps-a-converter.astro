@@ -1,55 +1,73 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-const rows = [
-  {dn:'DN 50', a:'50A', nps:'NPS 2', od:60.3},
-  {dn:'DN 65', a:'65A', nps:'NPS 2 1/2', od:73.0},
-  {dn:'DN 80', a:'80A', nps:'NPS 3', od:88.9},
-  {dn:'DN 100', a:'100A', nps:'NPS 4', od:114.3},
-  {dn:'DN 150', a:'150A', nps:'NPS 6', od:168.3},
-  {dn:'DN 200', a:'200A', nps:'NPS 8', od:219.1}
-];
+import { pipeSchedule40References as rows, pipeLabel } from '../../data/pipe';
 ---
-<BaseLayout title="DN ↔ NPS ↔ A Pipe Size Converter — HowNote" description="Cross-reference DN, NPS and regional A pipe size designations while keeping nominal size separate from actual outside diameter.">
+<BaseLayout
+  title="DN ↔ NPS ↔ A Pipe Size Converter — HowNote"
+  description="Cross-reference DN, NPS and regional A pipe size designations while keeping nominal size separate from actual outside diameter."
+>
   <section class="hero container">
     <div class="eyebrow">HowNote Tools · Pipe / Tube</div>
     <h1>DN ↔ NPS ↔ A Pipe Size Converter</h1>
-    <p>Find the matching nominal pipe-size designation across DN, NPS and the commonly used A notation. Nominal size is not the same as actual outside diameter.</p>
+    <p>Choose any nominal designation and see the matching DN, NPS and regional A label. Actual outside diameter remains a separate value.</p>
   </section>
 
   <section class="container calculator" data-converter>
     <div class="panel">
       <div class="field">
-        <label for="lookup">Choose a nominal pipe size</label>
-        <select id="lookup" data-lookup>
-          {rows.map((row, i) => <option value={i}>{row.dn} · {row.a} · {row.nps}</option>)}
+        <label for="dn-size">Choose by DN</label>
+        <select id="dn-size" data-dn-select>
+          {rows.map((row, i) => <option value={i}>{row.dn}</option>)}
         </select>
       </div>
-      <p class="muted">This first MVP intentionally contains only the same six verified pipe-size references already used by the Pipe Weight Calculator.</p>
+      <div class="field">
+        <label for="a-size">Choose by A designation</label>
+        <select id="a-size" data-a-select>
+          {rows.map((row, i) => <option value={i}>{row.a}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="nps-size">Choose by NPS</label>
+        <select id="nps-size" data-nps-select>
+          {rows.map((row, i) => <option value={i}>{row.nps}</option>)}
+        </select>
+      </div>
+      <p class="muted">This first public dataset intentionally uses the same six cross-checked Schedule 40 references as the Pipe Weight Calculator.</p>
     </div>
 
     <div class="panel">
       <div class="eyebrow">Cross-reference result</div>
+      <div class="result-main" data-label>—</div>
       <div class="result-grid">
         <div class="result-item"><span>DN</span><strong data-dn>—</strong></div>
         <div class="result-item"><span>A designation</span><strong data-a>—</strong></div>
         <div class="result-item"><span>NPS</span><strong data-nps>—</strong></div>
         <div class="result-item"><span>Actual OD</span><strong data-od>—</strong></div>
+        <div class="result-item"><span>Reference series</span><strong data-schedule>—</strong></div>
+        <div class="result-item"><span>Reference standard</span><strong data-standard>—</strong></div>
       </div>
-      <p class="muted" style="margin-top:18px"><strong>Important:</strong> DN, NPS and A are nominal designations. For example, DN 50 / 50A / NPS 2 has an actual outside diameter of 60.3 mm in this reference set.</p>
-      <a class="button" data-calculator-link href="/tools/pipe-weight-calculator?size=0" style="margin-top:8px">Use this size in Pipe Weight Calculator</a>
+      <div class="callout compact-callout">
+        <strong>Nominal does not mean measured.</strong>
+        <p>For example, DN 50 / 50A / NPS 2 has an actual OD of 60.3 mm in this reference set.</p>
+      </div>
+      <div class="button-row">
+        <a class="button" data-calculator-link href="/tools/pipe-weight-calculator?size=0">Calculate this pipe</a>
+        <button class="button button-secondary" type="button" data-copy>Copy reference</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
     </div>
   </section>
 
-  <section class="container" style="padding-bottom:72px">
+  <section class="container related-section">
     <div class="card">
-      <h2>Current nominal size cross-reference</h2>
+      <h2>Current nominal-size reference</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>DN</th><th>A</th><th>NPS</th><th>Actual OD mm</th><th></th></tr></thead>
-          <tbody>{rows.map((row, i) => <tr><td>{row.dn}</td><td>{row.a}</td><td>{row.nps}</td><td>{row.od}</td><td><a href={`/tools/pipe-weight-calculator?size=${i}`}>Calculate weight →</a></td></tr>)}</tbody>
+          <thead><tr><th>DN</th><th>A</th><th>NPS</th><th>Actual OD mm</th><th>Reference</th><th></th></tr></thead>
+          <tbody>{rows.map((row, i) => <tr><td>{row.dn}</td><td>{row.a}</td><td>{row.nps}</td><td>{row.odMm}</td><td>{row.schedule}</td><td><a class="text-link" href={`/tools/pipe-weight-calculator?size=${i}`}>Calculate →</a></td></tr>)}</tbody>
         </table>
       </div>
-      <p class="muted" style="margin-top:18px">The A labels are shown as regional convenience aliases and are not presented as ASME terminology. Actual ordering must still specify the governing standard, edition, schedule or wall thickness, material and other required purchase conditions.</p>
+      <p class="muted" style="margin-top:18px">The A labels are regional convenience aliases and are not presented as ASME terminology. Ordering still requires the governing standard, edition, schedule or wall, material and purchase conditions.</p>
     </div>
   </section>
 </BaseLayout>
@@ -57,17 +75,62 @@ const rows = [
 <script define:vars={{ rows }}>
   const root = document.querySelector('[data-converter]');
   if (root) {
-    const select = root.querySelector('[data-lookup]');
-    const render = () => {
-      const i = Number(select.value);
-      const row = rows[i];
-      root.querySelector('[data-dn]').textContent = row.dn;
-      root.querySelector('[data-a]').textContent = row.a;
-      root.querySelector('[data-nps]').textContent = row.nps;
-      root.querySelector('[data-od]').textContent = `${row.od} mm`;
-      root.querySelector('[data-calculator-link]').href = `/tools/pipe-weight-calculator?size=${i}`;
-    };
-    select.addEventListener('change', render);
-    render();
+    const dnSelect = root.querySelector('[data-dn-select]');
+    const aSelect = root.querySelector('[data-a-select]');
+    const npsSelect = root.querySelector('[data-nps-select]');
+    const copy = root.querySelector('[data-copy]');
+    const status = root.querySelector('[data-status]');
+
+    if (dnSelect instanceof HTMLSelectElement && aSelect instanceof HTMLSelectElement && npsSelect instanceof HTMLSelectElement) {
+      const fields = {
+        label: root.querySelector('[data-label]'),
+        dn: root.querySelector('[data-dn]'),
+        a: root.querySelector('[data-a]'),
+        nps: root.querySelector('[data-nps]'),
+        od: root.querySelector('[data-od]'),
+        schedule: root.querySelector('[data-schedule]'),
+        standard: root.querySelector('[data-standard]'),
+        link: root.querySelector('[data-calculator-link]'),
+      };
+
+      const render = (index) => {
+        const row = rows[index];
+        if (!row) return;
+        dnSelect.value = String(index);
+        aSelect.value = String(index);
+        npsSelect.value = String(index);
+        if (fields.label) fields.label.textContent = `${row.dn} · ${row.a} · ${row.nps}`;
+        if (fields.dn) fields.dn.textContent = row.dn;
+        if (fields.a) fields.a.textContent = row.a;
+        if (fields.nps) fields.nps.textContent = row.nps;
+        if (fields.od) fields.od.textContent = `${row.odMm} mm`;
+        if (fields.schedule) fields.schedule.textContent = row.schedule;
+        if (fields.standard) fields.standard.textContent = row.standard;
+        if (fields.link instanceof HTMLAnchorElement) fields.link.href = `/tools/pipe-weight-calculator?size=${index}`;
+        const url = new URL(window.location.href);
+        url.searchParams.set('size', String(index));
+        history.replaceState(null, '', url);
+      };
+
+      [dnSelect, aSelect, npsSelect].forEach((select) => {
+        select.addEventListener('change', () => render(Number(select.value)));
+      });
+
+      const requested = new URLSearchParams(window.location.search).get('size');
+      const initial = requested !== null && /^\d+$/.test(requested) && Number(requested) < rows.length ? Number(requested) : 0;
+      render(initial);
+
+      copy?.addEventListener('click', async () => {
+        const row = rows[Number(dnSelect.value)];
+        if (!row) return;
+        const text = `${row.dn} = ${row.a} = ${row.nps}; actual OD ${row.odMm} mm; ${row.schedule}; ${row.standard}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = 'Reference copied.';
+        } catch {
+          if (status) status.textContent = text;
+        }
+      });
+    }
   }
 </script>
