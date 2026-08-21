@@ -13,8 +13,10 @@
     const actionRow = calculator.querySelector('.result-panel .button-row');
     const size = calculator.querySelector('[data-size]');
     const geometryUnit = calculator.querySelector('[data-geometry-unit-select]');
+    const geometryMode = calculator.querySelector('[data-geometry-mode]');
     const od = calculator.querySelector('[data-od]');
     const wall = calculator.querySelector('[data-wall]');
+    const idInput = calculator.querySelector('[data-id-input]');
     const length = calculator.querySelector('[data-length]');
     const lengthUnit = calculator.querySelector('[data-length-unit-select]');
     const qty = calculator.querySelector('[data-qty]');
@@ -22,8 +24,10 @@
     const controlsReady = actionRow instanceof HTMLElement
       && size instanceof HTMLSelectElement
       && geometryUnit instanceof HTMLSelectElement
+      && geometryMode instanceof HTMLSelectElement
       && od instanceof HTMLInputElement
       && wall instanceof HTMLInputElement
+      && idInput instanceof HTMLInputElement
       && length instanceof HTMLInputElement
       && lengthUnit instanceof HTMLSelectElement
       && qty instanceof HTMLInputElement;
@@ -44,14 +48,27 @@
 
       const updateLink = () => {
         const factor = geometryUnit.value === 'in' ? 25.4 : 1;
-        const odMm = Number(od.value) * factor;
-        const wallMm = Number(wall.value) * factor;
-        const lengthValue = Number(length.value);
-        const quantityValue = Number(qty.value);
+        const odMm = od.value.trim() === '' ? Number.NaN : Number(od.value) * factor;
+        let wallMm;
+        let insideMm;
+
+        if (geometryMode.value === 'id') {
+          insideMm = idInput.value.trim() === '' ? Number.NaN : Number(idInput.value) * factor;
+          wallMm = (odMm - insideMm) / 2;
+        } else {
+          wallMm = wall.value.trim() === '' ? Number.NaN : Number(wall.value) * factor;
+          insideMm = odMm - 2 * wallMm;
+        }
+
+        const lengthValue = length.value.trim() === '' ? Number.NaN : Number(length.value);
+        const quantityValue = qty.value.trim() === '' ? Number.NaN : Number(qty.value);
         const geometryValid = Number.isFinite(odMm)
           && Number.isFinite(wallMm)
+          && Number.isFinite(insideMm)
           && odMm > 0
           && wallMm > 0
+          && insideMm > 0
+          && insideMm < odMm
           && 2 * wallMm < odMm;
         const orderValuesValid = Number.isFinite(lengthValue)
           && lengthValue > 0
@@ -59,7 +76,7 @@
           && quantityValue > 0;
 
         if (!geometryValid || !orderValuesValid) {
-          disableLink('Enter valid pipe geometry, a positive length and a positive whole-number quantity before creating a Purchase Note.');
+          disableLink('Enter valid active pipe geometry, a positive length and a positive whole-number quantity before creating a Purchase Note.');
           return;
         }
 
@@ -75,7 +92,7 @@
         link.removeAttribute('aria-disabled');
         link.classList.remove('is-disabled');
         link.textContent = 'Start Purchase Note';
-        link.title = 'Carry the current size, geometry, length and quantity into a preliminary Purchase Note draft.';
+        link.title = 'Carry the current size, validated geometry, length and quantity into a preliminary Purchase Note draft.';
       };
 
       calculator.addEventListener('input', updateLink);
