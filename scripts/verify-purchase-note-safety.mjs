@@ -36,6 +36,9 @@ for (const requiredFlag of [
 
 requireText(handoff, "link.setAttribute('aria-disabled', 'true')", 'Invalid calculator handoffs must be marked disabled.');
 requireText(handoff, 'orderValuesValid', 'Calculator handoff must validate length and quantity.');
+requireText(handoff, "geometryMode.value === 'id'", 'Calculator handoff must inspect the active geometry mode.');
+requireText(handoff, "idInput.value.trim() === ''", 'Calculator handoff must validate the active inside-diameter input.');
+requireText(handoff, 'insideMm = odMm - 2 * wallMm', 'Wall mode must derive and validate inside diameter.');
 requireText(handoff, '2 * wallMm < odMm', 'Calculator handoff must validate pipe geometry.');
 requireText(handoff, "link.removeAttribute('href')", 'Invalid calculator handoffs must not retain a URL.');
 
