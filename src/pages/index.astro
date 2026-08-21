@@ -1,16 +1,53 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout>
+<BaseLayout
+  title="HowNote — Engineering Tools, Pipe Sizes & Standards Intelligence"
+  description="Calculate, convert and review practical pipe-size and standards information with visible evidence labels."
+>
   <section class="hero container">
     <div class="eyebrow">Find · Compare · Calculate · Decide</div>
-    <h1>Practical standards and engineering tools for real purchasing decisions.</h1>
-    <p>HowNote starts with fast calculators and size references, then connects standards comparison, compatibility analysis and sourcing checks.</p>
-    <a class="button" href="/tools/pipe-weight-calculator">Open Pipe Weight Calculator</a>
+    <h1>Practical engineering tools for real purchasing decisions.</h1>
+    <p>HowNote begins with fast calculators and size references, then connects them to standards evidence, compatibility analysis and sourcing checks.</p>
+    <div class="button-row">
+      <a class="button" href="/tools/pipe-weight-calculator">Calculate pipe weight</a>
+      <a class="button button-secondary" href="/tools/dn-nps-a-converter">Convert DN / NPS / A</a>
+    </div>
   </section>
+
   <section class="container grid">
-    <article class="card"><h2>Tools</h2><p class="muted">Calculate pipe weight, convert engineering units and move directly into relevant size and standards references.</p><a href="/tools">Browse tools →</a></article>
-    <article class="card"><h2>Sizes</h2><p class="muted">Keep DN, NPS and regional aliases separate from actual OD, wall thickness and ID.</p><a href="/sizes">Browse sizes →</a></article>
-    <article class="card"><h2>Standards</h2><p class="muted">Official metadata, edition status and evidence are labeled separately from calculated or inferred relationships.</p><a href="/standards">Browse standards →</a></article>
+    <article class="card featured-card">
+      <div class="eyebrow">HowNote Tools</div>
+      <h2>Calculate and convert</h2>
+      <p class="muted">Pipe weight, nominal-size cross-reference, mm–inch, kg–lb and MPa–psi tools run directly in the browser.</p>
+      <a class="text-link" href="/tools">Browse tools →</a>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Size Reference</div>
+      <h2>Keep nominal and actual separate</h2>
+      <p class="muted">DN, NPS and regional A labels are shown separately from actual OD, wall thickness and calculated ID.</p>
+      <a class="text-link" href="/sizes">Browse sizes →</a>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Standards Evidence</div>
+      <h2>See the source type</h2>
+      <p class="muted">Official metadata, manufacturer references, regional aliases and calculated outputs are not presented as the same evidence.</p>
+      <a class="text-link" href="/standards">Browse standards →</a>
+    </article>
+  </section>
+
+  <section class="container related-section">
+    <div class="card">
+      <div class="eyebrow">HowNote workflow</div>
+      <h2>From an input value to a purchase check.</h2>
+      <div class="workflow-grid">
+        <div><strong>1. Calculate</strong><span>Weight, quantity and unit results</span></div>
+        <div><strong>2. Convert</strong><span>DN, NPS, A and engineering units</span></div>
+        <div><strong>3. Verify</strong><span>Standard identity, edition and source</span></div>
+        <div><strong>4. Compare</strong><span>Dimensions, materials and test requirements</span></div>
+        <div><strong>5. Decide</strong><span>Compatibility and purchase-note checks</span></div>
+      </div>
+      <p class="muted">The first three stages are live in the MVP. Standard Compare, Compatibility and Purchase Note will be added only after the underlying data can support them.</p>
+    </div>
   </section>
 </BaseLayout>
