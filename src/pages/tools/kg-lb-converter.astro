@@ -59,24 +59,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const format = (value: number) => Number.isFinite(value)
         ? Number(value.toPrecision(12)).toString()
         : '';
+      const read = (input: HTMLInputElement) => input.value.trim() === '' ? null : Number(input.value);
+      const clearStatus = () => { if (status) status.textContent = ''; };
 
       kg.addEventListener('input', () => {
-        const value = Number(kg.value);
-        lb.value = Number.isFinite(value) ? format(value / poundsToKg) : '';
+        const value = read(kg);
+        lb.value = value !== null && Number.isFinite(value) ? format(value / poundsToKg) : '';
+        clearStatus();
       });
 
       lb.addEventListener('input', () => {
-        const value = Number(lb.value);
-        kg.value = Number.isFinite(value) ? format(value * poundsToKg) : '';
+        const value = read(lb);
+        kg.value = value !== null && Number.isFinite(value) ? format(value * poundsToKg) : '';
+        clearStatus();
       });
 
       reset?.addEventListener('click', () => {
         kg.value = '1';
         kg.dispatchEvent(new Event('input'));
-        if (status) status.textContent = '';
       });
 
       copy?.addEventListener('click', async () => {
+        const kgValue = read(kg);
+        const lbValue = read(lb);
+        if (kgValue === null || lbValue === null || !Number.isFinite(kgValue) || !Number.isFinite(lbValue)) {
+          if (status) status.textContent = 'Enter a valid value before copying.';
+          return;
+        }
         const text = `${kg.value} kg = ${lb.value} lb`;
         try {
           await navigator.clipboard.writeText(text);
