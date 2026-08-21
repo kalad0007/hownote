@@ -1,0 +1,18 @@
+{
+  "name": "HowNote",
+  "short_name": "HowNote",
+  "description": "Engineering calculators, pipe-size references, standards evidence and sourcing intelligence.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f4",
+  "theme_color": "#164b42",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
