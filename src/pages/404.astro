@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Page not found — HowNote"
+  description="The requested HowNote page could not be found."
+  noindex={true}
+>
+  <section class="hero container">
+    <div class="eyebrow">404 · Page not found</div>
+    <h1>This page does not exist.</h1>
+    <p>The link may be outdated, or the page may still be under development. Continue with a working HowNote tool or reference page.</p>
+    <div class="button-row">
+      <a class="button" href="/tools">Browse tools</a>
+      <a class="button button-secondary" href="/">Go to homepage</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Nominal Pipe Size: DN, NPS and A Explained — HowNote"
+  description="Understand why DN, NPS and regional A labels must be kept separate from measured outside and inside diameter."
+>
+  <section class="hero container legal-hero">
+    <div class="eyebrow">Methodology · Pipe Size</div>
+    <h1>Nominal pipe size is a reference—not a ruler reading.</h1>
+    <p>HowNote separates the designation used to identify a pipe from the dimensions used to calculate, inspect and order it.</p>
+  </section>
+
+  <article class="container prose">
+    <h2>DN</h2>
+    <p>DN is a nominal designation used to identify a compatible size family. The number should not be treated as a measured outside or inside diameter in millimeters.</p>
+
+    <h2>NPS</h2>
+    <p>NPS is a nominal pipe-size designation. An NPS number is not converted directly by multiplying it by 25.4 to obtain the actual pipe OD.</p>
+
+    <h2>A designation</h2>
+    <p>Labels such as 50A are commonly used in parts of Asia as regional convenience aliases. HowNote displays them separately and does not describe them as ASME terminology.</p>
+
+    <h2>Actual dimensions</h2>
+    <p>Weight, clearance, flow area and inspection calculations require actual geometry such as OD, wall thickness and ID. A complete purchase specification may also require schedule, dimensional standard, product standard and edition/year.</p>
+
+    <h2>How HowNote connects the layers</h2>
+    <div class="formula">DN / NPS / A → reference size → OD + wall → calculated ID and weight</div>
+    <p>The first public subset contains six Schedule 40 references. This limited scope is intentional: HowNote expands the table only after the source basis can be documented.</p>
+
+    <div class="button-row">
+      <a class="button" href="/tools/dn-nps-a-converter">Open size converter</a>
+      <a class="button button-secondary" href="/sizes">View reference table</a>
+    </div>
+  </article>
+</BaseLayout>

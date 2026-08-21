@@ -1,56 +1,138 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-const sizes = [
-  {label:'DN 50 · 50A · NPS 2', od:60.3, wall:3.91, published:5.44},
-  {label:'DN 65 · 65A · NPS 2 1/2', od:73.0, wall:5.16, published:8.63},
-  {label:'DN 80 · 80A · NPS 3', od:88.9, wall:5.49, published:11.29},
-  {label:'DN 100 · 100A · NPS 4', od:114.3, wall:6.02, published:16.07},
-  {label:'DN 150 · 150A · NPS 6', od:168.3, wall:7.11, published:28.26},
-  {label:'DN 200 · 200A · NPS 8', od:219.1, wall:8.18, published:42.55}
-];
+import { pipeSchedule40References as sizes, pipeLabel } from '../../data/pipe';
 ---
-<BaseLayout title="Pipe Weight Calculator — HowNote" description="Calculate theoretical steel pipe weight by standard reference size or custom geometry.">
+<BaseLayout
+  title="Pipe Weight Calculator — kg/m, lb/ft & Order Weight | HowNote"
+  description="Calculate theoretical pipe weight from a cross-checked reference size or custom OD, wall thickness and density."
+>
   <section class="hero container">
     <div class="eyebrow">HowNote Tools · Pipe / Tube</div>
     <h1>Pipe Weight Calculator</h1>
-    <p>Calculate theoretical carbon-steel pipe mass from OD and wall thickness. Standard reference sizes are kept separate from the underlying geometry.</p>
+    <p>Calculate theoretical pipe mass from actual geometry and density. Nominal size, measured dimensions and published reference weight remain visibly separate.</p>
   </section>
 
-  <section class="container calculator" data-calculator>
+  <section class="container calculator calculator-wide" data-calculator data-geometry-unit="mm" data-length-unit="m">
     <div class="panel">
       <div class="field">
-        <label for="size">Reference size</label>
+        <label for="size">Reference size or custom geometry</label>
         <select id="size" data-size>
-          {sizes.map((s, i) => <option value={i}>{s.label} · Sch 40</option>)}
+          {sizes.map((row, i) => <option value={i}>{pipeLabel(row)} · {row.schedule}</option>)}
           <option value="custom">Custom geometry</option>
         </select>
       </div>
-      <div class="field"><label for="od">Outside diameter (mm)</label><input id="od" data-od type="number" step="0.01" value="60.3" /></div>
-      <div class="field"><label for="wall">Wall thickness (mm)</label><input id="wall" data-wall type="number" step="0.01" value="3.91" /></div>
-      <div class="field"><label for="density">Density (kg/m³)</label><input id="density" data-density type="number" step="1" value="7850" /></div>
-      <div class="field"><label for="length">Length per piece (m)</label><input id="length" data-length type="number" step="0.1" value="6" /></div>
-      <div class="field"><label for="qty">Quantity</label><input id="qty" data-qty type="number" step="1" value="10" /></div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="geometry-unit">Geometry unit</label>
+          <select id="geometry-unit" data-geometry-unit-select>
+            <option value="mm">Millimeters (mm)</option>
+            <option value="in">Inches (in)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="geometry-mode">Custom input method</label>
+          <select id="geometry-mode" data-geometry-mode>
+            <option value="wall">OD + wall thickness</option>
+            <option value="id">OD + inside diameter</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="od">Outside diameter <span data-geometry-unit-label>(mm)</span></label>
+          <input id="od" data-od type="number" step="any" value="60.3" inputmode="decimal" />
+        </div>
+        <div class="field" data-wall-field>
+          <label for="wall">Wall thickness <span data-geometry-unit-label>(mm)</span></label>
+          <input id="wall" data-wall type="number" step="any" value="3.91" inputmode="decimal" />
+        </div>
+        <div class="field hidden" data-id-field>
+          <label for="inside-diameter">Inside diameter <span data-geometry-unit-label>(mm)</span></label>
+          <input id="inside-diameter" data-id-input type="number" step="any" value="52.48" inputmode="decimal" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="material">Material density preset</label>
+          <select id="material" data-material>
+            <option value="7850">Carbon steel reference · 7,850 kg/m³</option>
+            <option value="8000">Stainless steel estimate · 8,000 kg/m³</option>
+            <option value="2700">Aluminum estimate · 2,700 kg/m³</option>
+            <option value="custom">Custom density</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="density">Density (kg/m³)</label>
+          <input id="density" data-density type="number" step="any" value="7850" inputmode="decimal" />
+        </div>
+      </div>
+
+      <div class="field-row field-row-three">
+        <div class="field">
+          <label for="length">Length per piece</label>
+          <input id="length" data-length type="number" step="any" value="6" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="length-unit">Length unit</label>
+          <select id="length-unit" data-length-unit-select>
+            <option value="m">Meters (m)</option>
+            <option value="ft">Feet (ft)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qty">Quantity</label>
+          <input id="qty" data-qty type="number" step="1" min="1" value="10" inputmode="numeric" />
+        </div>
+      </div>
+
+      <p class="form-error" data-error aria-live="polite"></p>
     </div>
 
-    <div class="panel">
+    <div class="panel result-panel">
       <div class="eyebrow">Calculated result</div>
-      <div class="result-main"><span data-total>—</span> kg total</div>
-      <div class="result-grid">
+      <div class="result-main"><span data-total-kg>—</span> kg total</div>
+      <p class="result-secondary"><span data-total-lb>—</span> lb total</p>
+
+      <div class="result-grid result-grid-dense">
         <div class="result-item"><span>Inside diameter</span><strong data-id>—</strong></div>
+        <div class="result-item"><span>Wall thickness</span><strong data-wall-result>—</strong></div>
+        <div class="result-item"><span>Cross-sectional area</span><strong data-area>—</strong></div>
         <div class="result-item"><span>Weight per metre</span><strong data-kgm>—</strong></div>
+        <div class="result-item"><span>Weight per foot</span><strong data-lbft>—</strong></div>
         <div class="result-item"><span>Weight per piece</span><strong data-piece>—</strong></div>
         <div class="result-item"><span>Published reference</span><strong data-published>—</strong></div>
+        <div class="result-item"><span>Calculated difference</span><strong data-difference>—</strong></div>
       </div>
-      <p class="muted" style="margin-top:18px">Formula: π/4 × (OD² − ID²) × density. The 7,850 kg/m³ density is a theoretical carbon-steel reference assumption. Verify the governing standard, material grade and supplier documents before ordering.</p>
-      <a href="/tools/dn-nps-a-converter">Need to find the matching DN / NPS / A size? →</a>
+
+      <div class="button-row">
+        <button class="button" type="button" data-copy-result>Copy result</button>
+        <button class="button button-secondary" type="button" data-copy-link>Copy share link</button>
+      </div>
+      <p class="status-text" data-status aria-live="polite"></p>
+
+      <p class="muted calculation-note">Formula: π/4 × (OD² − ID²) × density. Published nominal mass is a separate manufacturer reference and can differ from the theoretical result.</p>
+      <a class="text-link" href="/tools/dn-nps-a-converter">Find the matching DN / NPS / A size →</a>
     </div>
   </section>
 
-  <section class="container" style="padding-bottom:72px">
+  <section class="container related-section">
     <div class="card">
       <h2>Initial Schedule 40 reference subset</h2>
       <p class="muted">Standard identity: ASME B36.10-2022. The limited OD, wall and nominal-mass subset is cross-checked from manufacturer publications and is not presented as a transcription of the copyrighted ASME table.</p>
-      <div class="table-wrap"><table><thead><tr><th>Size</th><th>OD mm</th><th>Wall mm</th><th>Published kg/m</th></tr></thead><tbody>{sizes.map((s)=><tr><td>{s.label}</td><td>{s.od}</td><td>{s.wall}</td><td>{s.published}</td></tr>)}</tbody></table></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Size</th><th>OD mm</th><th>Wall mm</th><th>Published kg/m</th><th></th></tr></thead>
+          <tbody>{sizes.map((row, i) => <tr><td>{pipeLabel(row)}</td><td>{row.odMm}</td><td>{row.wallMm}</td><td>{row.publishedKgM}</td><td><a class="text-link" href={`?size=${i}`}>Use →</a></td></tr>)}</tbody>
+        </table>
+      </div>
+      <div class="source-row">
+        <a class="text-link" href="https://www.asme.org/codes-standards/find-codes-standards/welded-and-seamless-wrought-steel-pipe" rel="noopener noreferrer">ASME standard metadata</a>
+        <a class="text-link" href="https://www.wheatland.com/resource-library/standard-pipe-brochure" rel="noopener noreferrer">Wheatland manufacturer reference</a>
+        <a class="text-link" href="https://www.nucortubular.com/product/a53/" rel="noopener noreferrer">Nucor manufacturer reference</a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -58,42 +140,247 @@ const sizes = [
 <script define:vars={{ sizes }}>
   const root = document.querySelector('[data-calculator]');
   if (root) {
-    const q = (s) => root.querySelector(s);
-    const size = q('[data-size]');
-    const od = q('[data-od]');
-    const wall = q('[data-wall]');
-    const density = q('[data-density]');
-    const length = q('[data-length]');
-    const qty = q('[data-qty]');
-    const fmt = (n, d=3) => Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
-    const applySize = () => {
-      if (size.value !== 'custom') {
-        const row = sizes[Number(size.value)];
-        if (row) { od.value = row.od; wall.value = row.wall; }
-      }
-    };
-    const calc = () => {
-      const OD = Number(od.value), W = Number(wall.value), rho = Number(density.value), L = Number(length.value), Q = Number(qty.value);
-      const ID = OD - 2 * W;
-      if (!(OD > 0 && W > 0 && ID > 0 && rho > 0 && L > 0 && Q > 0)) return;
-      const areaM2 = Math.PI / 4 * (OD*OD - ID*ID) / 1e6;
-      const kgm = areaM2 * rho;
-      const piece = kgm * L;
-      const total = piece * Q;
-      q('[data-id]').textContent = `${fmt(ID,3)} mm`;
-      q('[data-kgm]').textContent = `${fmt(kgm,3)} kg/m`;
-      q('[data-piece]').textContent = `${fmt(piece,3)} kg`;
-      q('[data-total]').textContent = fmt(total,3);
-      const row = size.value === 'custom' ? null : sizes[Number(size.value)];
-      q('[data-published]').textContent = row ? `${fmt(row.published,2)} kg/m` : 'Custom input';
-    };
-    const requested = new URLSearchParams(window.location.search).get('size');
-    if (requested !== null && /^\d+$/.test(requested) && Number(requested) < sizes.length) {
-      size.value = requested;
-      applySize();
+    const MM_PER_IN = 25.4;
+    const M_PER_FT = 0.3048;
+    const LB_PER_KG = 2.2046226218487757;
+    const FT_PER_M = 3.280839895013123;
+
+    const get = (selector) => root.querySelector(selector);
+    const size = get('[data-size]');
+    const geometryUnit = get('[data-geometry-unit-select]');
+    const geometryMode = get('[data-geometry-mode]');
+    const od = get('[data-od]');
+    const wall = get('[data-wall]');
+    const idInput = get('[data-id-input]');
+    const material = get('[data-material]');
+    const density = get('[data-density]');
+    const length = get('[data-length]');
+    const lengthUnit = get('[data-length-unit-select]');
+    const qty = get('[data-qty]');
+    const error = get('[data-error]');
+    const status = get('[data-status]');
+
+    const requiredInputs = [size, geometryUnit, geometryMode, od, wall, idInput, material, density, length, lengthUnit, qty];
+    const ready = requiredInputs.every((element) => element instanceof HTMLInputElement || element instanceof HTMLSelectElement);
+
+    if (ready) {
+      const fmt = (value, digits = 3) => Number(value).toLocaleString(undefined, { maximumFractionDigits: digits });
+      const rawNumber = (input) => input.value.trim() === '' ? Number.NaN : Number(input.value);
+      const toMm = (value) => geometryUnit.value === 'in' ? value * MM_PER_IN : value;
+      const fromMm = (value) => geometryUnit.value === 'in' ? value / MM_PER_IN : value;
+      const toMeters = (value) => lengthUnit.value === 'ft' ? value * M_PER_FT : value;
+      const setText = (selector, text) => {
+        const element = get(selector);
+        if (element) element.textContent = text;
+      };
+
+      const setGeometryMode = () => {
+        get('[data-wall-field]')?.classList.toggle('hidden', geometryMode.value !== 'wall');
+        get('[data-id-field]')?.classList.toggle('hidden', geometryMode.value !== 'id');
+      };
+
+      const updateUnitLabels = () => {
+        root.querySelectorAll('[data-geometry-unit-label]').forEach((label) => {
+          label.textContent = geometryUnit.value === 'in' ? '(in)' : '(mm)';
+        });
+      };
+
+      const applyReference = (index) => {
+        const row = sizes[index];
+        if (!row) return;
+        geometryMode.value = 'wall';
+        setGeometryMode();
+        od.value = String(Number(fromMm(row.odMm).toPrecision(10)));
+        wall.value = String(Number(fromMm(row.wallMm).toPrecision(10)));
+        idInput.value = String(Number(fromMm(row.odMm - 2 * row.wallMm).toPrecision(10)));
+      };
+
+      const clearResults = () => {
+        ['[data-total-kg]','[data-total-lb]','[data-id]','[data-wall-result]','[data-area]','[data-kgm]','[data-lbft]','[data-piece]','[data-published]','[data-difference]'].forEach((selector) => setText(selector, '—'));
+      };
+
+      const updateUrl = () => {
+        const url = new URL(window.location.href);
+        url.search = '';
+        url.searchParams.set('size', size.value);
+        url.searchParams.set('unit', geometryUnit.value);
+        url.searchParams.set('mode', geometryMode.value);
+        url.searchParams.set('od', od.value);
+        if (geometryMode.value === 'wall') url.searchParams.set('wall', wall.value);
+        else url.searchParams.set('id', idInput.value);
+        url.searchParams.set('density', density.value);
+        url.searchParams.set('length', length.value);
+        url.searchParams.set('lengthUnit', lengthUnit.value);
+        url.searchParams.set('qty', qty.value);
+        history.replaceState(null, '', url);
+      };
+
+      const calculate = () => {
+        const odMm = toMm(rawNumber(od));
+        const densityKgM3 = rawNumber(density);
+        const pieceLengthM = toMeters(rawNumber(length));
+        const quantity = rawNumber(qty);
+        let wallMm;
+        let insideMm;
+
+        if (geometryMode.value === 'wall') {
+          wallMm = toMm(rawNumber(wall));
+          insideMm = odMm - 2 * wallMm;
+          if (Number.isFinite(insideMm)) idInput.value = String(Number(fromMm(insideMm).toPrecision(10)));
+        } else {
+          insideMm = toMm(rawNumber(idInput));
+          wallMm = (odMm - insideMm) / 2;
+          if (Number.isFinite(wallMm)) wall.value = String(Number(fromMm(wallMm).toPrecision(10)));
+        }
+
+        const valid = odMm > 0 && wallMm > 0 && insideMm > 0 && insideMm < odMm && densityKgM3 > 0 && pieceLengthM > 0 && quantity > 0 && Number.isInteger(quantity);
+        if (!valid) {
+          if (error) error.textContent = 'Enter positive dimensions, density and length. Quantity must be a whole number, and ID must be smaller than OD.';
+          clearResults();
+          return null;
+        }
+
+        if (error) error.textContent = '';
+        const areaMm2 = Math.PI / 4 * (odMm * odMm - insideMm * insideMm);
+        const kgM = areaMm2 / 1_000_000 * densityKgM3;
+        const lbFt = kgM * LB_PER_KG / FT_PER_M;
+        const pieceKg = kgM * pieceLengthM;
+        const totalKg = pieceKg * quantity;
+        const row = size.value === 'custom' ? null : sizes[Number(size.value)];
+        const difference = row ? (kgM - row.publishedKgM) / row.publishedKgM * 100 : null;
+
+        setText('[data-total-kg]', fmt(totalKg, 3));
+        setText('[data-total-lb]', fmt(totalKg * LB_PER_KG, 3));
+        setText('[data-id]', `${fmt(insideMm, 3)} mm · ${fmt(insideMm / MM_PER_IN, 4)} in`);
+        setText('[data-wall-result]', `${fmt(wallMm, 3)} mm · ${fmt(wallMm / MM_PER_IN, 4)} in`);
+        setText('[data-area]', `${fmt(areaMm2, 2)} mm²`);
+        setText('[data-kgm]', `${fmt(kgM, 4)} kg/m`);
+        setText('[data-lbft]', `${fmt(lbFt, 4)} lb/ft`);
+        setText('[data-piece]', `${fmt(pieceKg, 3)} kg · ${fmt(pieceKg * LB_PER_KG, 3)} lb`);
+        setText('[data-published]', row ? `${fmt(row.publishedKgM, 3)} kg/m` : 'Custom geometry');
+        setText('[data-difference]', difference === null ? 'Not applicable' : `${difference >= 0 ? '+' : ''}${fmt(difference, 3)}%`);
+        updateUrl();
+
+        return { odMm, insideMm, wallMm, areaMm2, kgM, lbFt, pieceKg, totalKg, quantity, pieceLengthM, row, difference };
+      };
+
+      const loadUrlState = () => {
+        const params = new URLSearchParams(window.location.search);
+        const requestedUnit = params.get('unit');
+        if (requestedUnit === 'in' || requestedUnit === 'mm') geometryUnit.value = requestedUnit;
+        root.dataset.geometryUnit = geometryUnit.value;
+        updateUnitLabels();
+
+        const requestedLengthUnit = params.get('lengthUnit');
+        if (requestedLengthUnit === 'ft' || requestedLengthUnit === 'm') lengthUnit.value = requestedLengthUnit;
+        root.dataset.lengthUnit = lengthUnit.value;
+
+        const requestedSize = params.get('size');
+        if (requestedSize === 'custom') size.value = 'custom';
+        else if (requestedSize !== null && /^\d+$/.test(requestedSize) && Number(requestedSize) < sizes.length) size.value = requestedSize;
+
+        if (size.value !== 'custom') applyReference(Number(size.value));
+
+        const requestedMode = params.get('mode');
+        if (size.value === 'custom' && (requestedMode === 'id' || requestedMode === 'wall')) geometryMode.value = requestedMode;
+        setGeometryMode();
+
+        const assignPositive = (name, input) => {
+          const value = params.get(name);
+          if (value !== null && value.trim() !== '' && Number(value) > 0) input.value = value;
+        };
+
+        if (size.value === 'custom') {
+          assignPositive('od', od);
+          if (geometryMode.value === 'wall') assignPositive('wall', wall);
+          else assignPositive('id', idInput);
+        }
+        assignPositive('density', density);
+        assignPositive('length', length);
+        assignPositive('qty', qty);
+      };
+
+      loadUrlState();
+
+      size.addEventListener('change', () => {
+        if (size.value !== 'custom') applyReference(Number(size.value));
+        calculate();
+      });
+
+      geometryUnit.addEventListener('change', () => {
+        const oldUnit = root.dataset.geometryUnit || 'mm';
+        if (oldUnit !== geometryUnit.value) {
+          const factor = geometryUnit.value === 'in' ? 1 / MM_PER_IN : MM_PER_IN;
+          [od, wall, idInput].forEach((input) => {
+            const value = rawNumber(input);
+            if (Number.isFinite(value)) input.value = String(Number((value * factor).toPrecision(10)));
+          });
+          root.dataset.geometryUnit = geometryUnit.value;
+        }
+        updateUnitLabels();
+        calculate();
+      });
+
+      lengthUnit.addEventListener('change', () => {
+        const oldUnit = root.dataset.lengthUnit || 'm';
+        if (oldUnit !== lengthUnit.value) {
+          const value = rawNumber(length);
+          if (Number.isFinite(value)) {
+            const converted = lengthUnit.value === 'ft' ? value / M_PER_FT : value * M_PER_FT;
+            length.value = String(Number(converted.toPrecision(10)));
+          }
+          root.dataset.lengthUnit = lengthUnit.value;
+        }
+        calculate();
+      });
+
+      geometryMode.addEventListener('change', () => {
+        size.value = 'custom';
+        setGeometryMode();
+        calculate();
+      });
+
+      material.addEventListener('change', () => {
+        if (material.value !== 'custom') density.value = material.value;
+        calculate();
+      });
+
+      density.addEventListener('input', () => {
+        const matching = Array.from(material.options).find((option) => option.value === density.value);
+        material.value = matching ? matching.value : 'custom';
+        calculate();
+      });
+
+      [od, wall, idInput].forEach((input) => input.addEventListener('input', () => {
+        size.value = 'custom';
+        calculate();
+      }));
+      [length, qty].forEach((input) => input.addEventListener('input', calculate));
+
+      get('[data-copy-result]')?.addEventListener('click', async () => {
+        const result = calculate();
+        if (!result) return;
+        const sizeText = result.row ? `${result.row.dn} / ${result.row.a} / ${result.row.nps} / ${result.row.schedule}` : 'Custom pipe geometry';
+        const text = `${sizeText}; OD ${fmt(result.odMm, 3)} mm; wall ${fmt(result.wallMm, 3)} mm; ID ${fmt(result.insideMm, 3)} mm; ${fmt(result.kgM, 4)} kg/m; ${fmt(result.lbFt, 4)} lb/ft; total ${fmt(result.totalKg, 3)} kg (${fmt(result.totalKg * LB_PER_KG, 3)} lb).`;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = 'Result copied.';
+        } catch {
+          if (status) status.textContent = text;
+        }
+      });
+
+      get('[data-copy-link]')?.addEventListener('click', async () => {
+        calculate();
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          if (status) status.textContent = 'Share link copied.';
+        } catch {
+          if (status) status.textContent = window.location.href;
+        }
+      });
+
+      calculate();
     }
-    size.addEventListener('change', () => { applySize(); calc(); });
-    [od,wall,density,length,qty].forEach(el => el.addEventListener('input', calc));
-    calc();
   }
 </script>

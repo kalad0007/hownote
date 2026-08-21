@@ -1,32 +1,82 @@
 ---
 import '../styles/global.css';
-interface Props { title?: string; description?: string; }
-const { title = 'HowNote — Practical Standards & Tools', description = 'Engineering calculators, size references, standards comparison and sourcing intelligence.' } = Astro.props;
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = 'HowNote — Practical Standards & Tools',
+  description = 'Engineering calculators, size references, standards comparison and sourcing intelligence.',
+  noindex = false,
+} = Astro.props;
+
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'HowNote',
+  url: 'https://hownote.net',
+  description: 'Practical engineering tools, size references, standards comparison and sourcing intelligence.',
+  inLanguage: 'en',
+};
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
+    <meta name="theme-color" content="#164b42" />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:site_name" content="HowNote" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     <title>{title}</title>
   </head>
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/">HowNote</a>
+        <a class="brand" href="/" aria-label="HowNote home">HowNote</a>
         <nav aria-label="Primary">
           <a href="/tools">Tools</a>
           <a href="/sizes">Sizes</a>
           <a href="/standards">Standards</a>
         </nav>
-        <a class="button" href="/tools/pipe-weight-calculator">Pipe Calculator</a>
+        <a class="button header-cta" href="/tools/pipe-weight-calculator">Pipe Calculator</a>
       </div>
     </header>
     <main><slot /></main>
-    <footer class="footer"><div class="container">© 2026 HowNote · Practical standards, tools & sourcing intelligence.</div></footer>
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div>
+          <strong>HowNote</strong>
+          <p>Practical standards, engineering tools and sourcing intelligence.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="/about">About</a>
+          <a href="/sources">Sources</a>
+          <a href="/methodology/pipe-weight">Methodology</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+          <a href="/disclaimer">Disclaimer</a>
+        </nav>
+      </div>
+      <div class="container footer-bottom">© 2026 HowNote. All rights reserved.</div>
+    </footer>
   </body>
 </html>
