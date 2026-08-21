@@ -1,29 +1,53 @@
-# HowNote Astro MVP v0.4
+# HowNote Astro MVP v0.5
 
-First working repository package for **hownote.net**.
+Production repository for **https://hownote.net**.
 
-## Implemented
+HowNote is a practical standards, engineering tools and sourcing-intelligence platform. The MVP deliberately begins with a small pipe/tube workflow:
 
-- Astro static-site structure for Cloudflare
-- Responsive HowNote shell and navigation
-- Pipe Weight Calculator
-  - Standard Size mode
-  - Custom OD + wall or OD + ID mode
-  - mm / inch, m / ft, kg / lb
-  - kg/m, lb/ft, piece mass, total order mass
-  - published nominal mass comparison
-  - copy result, URL state, local preference state
-- Pipe Size reference table and six Size detail pages
-- ASME B36.10-2022 standard metadata page
-- Source and evidence page
-- Pipe-weight and nominal-size methodology pages
-- Structured Catalog with 30 validated JSON records
-- Cloudflare static-assets configuration
-- sitemap, canonical, robots, and basic structured data
+```text
+Unit conversion
+  → DN / NPS / A cross-reference
+  → Actual OD and wall reference
+  → Pipe weight calculation
+  → Standard identity and evidence
+```
 
-## First real data scope
+## Live pages
 
-The standard identity and 2022 edition metadata come from official ASME sources.
+### Tools
+
+- `/tools/pipe-weight-calculator`
+  - Reference-size and custom-geometry modes
+  - OD + wall or OD + ID input
+  - mm / inch and m / ft input
+  - kg/m, lb/ft, piece mass and total order mass
+  - Density presets and custom density
+  - Published-reference comparison
+  - Shareable URL state and copy result
+- `/tools/dn-nps-a-converter`
+- `/tools/mm-inch-converter`
+- `/tools/kg-lb-converter`
+- `/tools/mpa-psi-converter`
+
+### References
+
+- `/sizes`
+- `/standards`
+- `/standards/asme-b36-10`
+- `/sources`
+- `/methodology/pipe-weight`
+- `/methodology/nominal-pipe-size`
+
+### Trust and policy
+
+- `/about`
+- `/contact`
+- `/privacy`
+- `/terms`
+- `/disclaimer`
+- custom `/404`
+
+## Initial pipe-size scope
 
 The first Schedule 40 reference subset contains:
 
@@ -34,76 +58,70 @@ The first Schedule 40 reference subset contains:
 - NPS 6 / DN 150 / regional alias 150A
 - NPS 8 / DN 200 / regional alias 200A
 
-OD, wall thickness, and nominal mass are cross-checked between Wheatland Tube and Nucor Tubular manufacturer publications. This limited subset is **not presented as a transcription of the copyrighted ASME table**.
+The shared source module is `src/data/pipe.ts`.
 
 ## Evidence labels
 
-- `OFFICIAL`: standard identity and edition metadata from ASME
-- `Manufacturer cross-verified`: dimensions checked across two manufacturer publications
-- `CALCULATED`: HowNote geometry, density assumption, and unit conversion
+- `OFFICIAL`: standard identity, edition and scope from ASME
+- `MANUFACTURER`: limited OD, wall and nominal-mass cross-checks
+- `CALCULATED`: HowNote geometry, density and unit-conversion results
 - `Regional alias`: A designation shown for convenience; not ASME terminology
+- `INTERFACE REFERENCE`: workflow research that is not used as production dimension data
 
-## Run locally
+HowNote does not reproduce the complete paid ASME dimension table.
 
-Use Node 22.12.0 or later.
+## Local development
+
+Use Node.js 22.12.0 or later.
 
 ```bash
 npm install
-npm run test
 npm run dev
 ```
 
-Build:
+Production validation:
 
 ```bash
-npm run build
+npm run validate
 ```
 
-## Cloudflare
+The zero-dependency verifier checks expected routes, the sitemap, robots.txt, the 404 page, internal links and the canonical `hownote.net` host.
 
-### Pages dashboard
+## Cloudflare Workers deployment
 
-- Production branch: `main`
+The site is a static Astro build deployed with Workers Static Assets.
+
 - Build command: `npm run build`
-- Build output: `dist`
+- Deploy command: `npx wrangler deploy`
+- Production branch: `main`
+- Output directory: `dist`
+- Config: `wrangler.jsonc`
 
-### Workers static assets
-
-The repository includes `wrangler.jsonc`.
+Manual deployment:
 
 ```bash
 npm run deploy
 ```
 
-After the first successful deployment, connect `hownote.net` as the custom domain.
+Pushes to `main` should trigger the connected Cloudflare Workers Build. GitHub Actions also validates every push to `main` and every pull request.
 
-## Validation completed in this package
+## Current architecture
 
 ```text
-Catalog validation: 30 records, 0 warnings, 0 errors
-JSON Schema Draft 2020-12: 30/30 passed
-Static route check: 16 routes, 6 Size routes, 0 broken literal internal links
-pipe-weight.test.ts: passed
-catalog-to-calculator.test.ts: passed
-published-size-subset.test.ts: passed
-Responsive static preview: rendered in Chromium at desktop and mobile widths
+hownote.net
+  → Cloudflare Workers Static Assets
+  → Astro static generation
+  → TypeScript source data
+  → browser-side calculations
 ```
 
-The current execution environment could not reach the npm registry, so dependency installation and the final `astro build` were not run here. The repository is prepared for that first connected-environment build.
+No Supabase database is required at this stage. A database becomes relevant when the product needs user accounts, saved projects, arbitrary standards graph queries, document uploads, live AI analysis or transaction-specific Purchase Notes.
 
-## Important limitations
+## Next product gates
 
-1. The official ASME 2022 dimension table has not been transcribed or stored.
-2. Only six Schedule 40 reference rows are published in the MVP.
-3. The A designations are regional convenience aliases and must not be described as ASME designations.
-4. The 7,850 kg/m³ carbon-steel density is a theoretical reference assumption, not a grade guarantee.
-5. Calculator output does not replace the governing standard, product specification, regulation, certification, MTC/MTR, supplier confirmation, or purchase contract.
-
-## Next implementation gate
-
-1. Install dependencies and run the first Astro v7 build.
-2. Create the GitHub repository and push `main`.
-3. Deploy to Cloudflare.
-4. Connect `hownote.net`.
-5. Perform desktop/mobile production smoke tests.
-6. Add the DN–NPS–A converter only after the calculator URL is stable.
+1. Confirm the production deploy and GitHub validation for v0.5.
+2. Activate `hello@hownote.net` email routing before public outreach.
+3. Add `www.hownote.net` and redirect it to the canonical apex domain.
+4. Register Google Search Console and Naver Search Advisor.
+5. Expand pipe data only after each new source set is documented.
+6. Begin the first Standard Compare / Compatibility / Purchase Note case study.
