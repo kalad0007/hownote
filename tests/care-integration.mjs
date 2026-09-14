@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const base = process.env.CARE_TEST_URL || 'http://localhost:8787';
+assert(['localhost','127.0.0.1'].includes(new URL(base).hostname), 'Test only against localhost');
+const { users, token } = JSON.parse(readFileSync('.care-local-credentials.json', 'utf8'));
+const fixture = JSON.parse(readFileSync('tests/fixtures/care-briefing.json', 'utf8'));
+let count = 0;
+async function request(path, { data, cookie, publisher, origin = base, method, ip } = {}) {
+  const response = await fetch(base + path, { method: method || (data ? 'POST' : 'GET'), redirect: 'manual', headers: { ...(data ? { 'Content-Type':'application/json', Origin: origin } : {}), ...(cookie ? { Cookie: cookie } : {}), ...(publisher ? { Authorization: `Bearer ${token}` } : {}), ...(ip ? {'CF-Connecting-IP':ip} : {}) }, body: data ? JSON.stringify(data) : undefined });
+  const text = await response.text(); let json; try { json = JSON.parse(text); } catch {}
+  return { status: response.status, headers: response.headers, text, json, cookie: response.headers.get('set-cookie')?.split(';')[0] };
+}
+function ok(condition, message) { assert(condition, message); count++; console.log('PASS', message); }
+let r = await request('/care/api/briefings'); ok(r.status === 401, 'Anonymous cannot read briefings');
+r = await request('/care/api/briefings/2026-09-14'); ok(r.status === 401, 'Anonymous cannot read detail or comments');
+r = await request('/care'); ok(r.status === 200 && !r.text.includes(fixture.title), 'Public shell contains no private report');
+ok(r.headers.get('cache-control') === 'no-store', 'Care page is not cached');
+r = await request('/care/api/publish', {data:fixture}); ok(r.status === 401, 'Publisher endpoint requires separate credential');
+r = await request('/care/api/login', {data:{password:users[0].password}, origin:'https://other.invalid'}); ok(r.status === 403, 'Cross-origin login is rejected');
+r = await request('/care/api/login', {data:{password:'incorrect'}}); ok(r.status === 401, 'Incorrect password rejected');
+r = await request('/care/api/login', {data:{password:users[0].password}}); const andy = r.cookie;
+ok(r.status === 200 && r.json.user.id === 'andy', 'Password identifies Andy');
+ok(/HttpOnly/.test(r.headers.get('set-cookie')) && /Secure/.test(r.headers.get('set-cookie')) && /SameSite=Strict/.test(r.headers.get('set-cookie')), 'Session cookie has required security flags');
+r = await request('/care/api/login', {data:{password:users[1].password}}); const partner = r.cookie; ok(r.json.user.id === 'partner', 'Second password identifies partner');
+const rpc = (method, params) => request('/care/mcp', {publisher:true,data:{jsonrpc:'2.0',id:1,method,params}});
+r = await rpc('initialize', {protocolVersion:'2025-03-26', capabilities:{}, clientInfo:{name:'integration-test',version:'1'}}); ok(r.json.result.serverInfo.name === 'hownote-care', 'MCP initialize succeeds');
+r = await rpc('tools/list'); ok(r.json.result.tools.length === 2, 'Publisher and read-back tools discoverable');
+r = await rpc('tools/call', {name:'publish_briefing',arguments:{briefing:fixture}}); ok(r.status === 200 && !r.json.result.isError, 'Completed report published through MCP');
+r = await rpc('tools/call', {name:'publish_briefing',arguments:{briefing:fixture}}); ok(JSON.parse(r.json.result.content[0].text).status === 'unchanged', 'Retry does not duplicate daily report');
+r = await request('/care/api/briefings/2026-09-14', {cookie:andy}); ok(r.json.title === fixture.title && r.json.sections.length === 3, 'Reader receives saved full report');
+const comment = {id:crypto.randomUUID(),section:'deep-dive',body:'화면 확인용 의견: 실제 업무 시간을 함께 조사하면 좋겠습니다.'};
+r = await request('/care/api/briefings/2026-09-14/comments', {cookie:partner,data:comment}); ok(r.status === 201 && r.json.comment.author === '파트너', 'Topic comment uses authenticated author');
+r = await request('/care/api/briefings/2026-09-14/comments', {cookie:partner,data:comment}); ok(r.status === 200, 'Comment retry is idempotent');
+r = await request('/care/api/briefings/2026-09-14/comments', {cookie:andy,data:{id:crypto.randomUUID(),section:'all',body:'화면 확인용 의견: 내일 자료와 연결해서 읽어보겠습니다.',author:'Spoofed'}}); ok(r.status === 201 && r.json.comment.author === 'Andy', 'Whole-report comment ignores client-supplied author');
+r = await request('/care/api/briefings/2026-09-14/comments', {cookie:andy,data:{id:crypto.randomUUID(),section:'missing',body:'test'}}); ok(r.status === 400, 'Unknown section rejected');
+r = await request('/care/api/briefings/2026-09-14/comments', {cookie:andy,origin:'https://other.invalid',data:{id:crypto.randomUUID(),body:'test'}}); ok(r.status === 403, 'Cross-origin comment rejected');
+const changed = structuredClone(fixture); changed.summary[1] += ' 수정 동작 확인.';
+r = await request('/care/api/publish', {publisher:true,data:changed}); ok(r.json.status === 'updated', 'Same date updates existing report');
+r = await request('/care/api/briefings/2026-09-14', {cookie:partner}); ok(r.json.comments.some(c=>c.id===comment.id), 'Updating report preserves prior topic comments');
+r = await request('/care/api/publish', {publisher:true,data:{...fixture,sources:[{title:'bad',url:'javascript:alert(1)'}]}}); ok(r.status === 400, 'Unsafe source URL rejected');
+r = await request('/care/api/publish', {publisher:true,data:{...fixture,date:'2026-99-99'}}); ok(r.status === 400, 'Invalid date rejected');
+r = await request('/care/api/publish', {publisher:true,data:{...fixture,sections:[fixture.sections[0],fixture.sections[0]]}}); ok(r.status === 400, 'Duplicate topic IDs rejected');
+r = await request('/care/api/publish', {publisher:true,data:{...fixture,title:'x'.repeat(190000)}}); ok(r.status === 413, 'Oversized request rejected');
+await request('/care/api/publish', {publisher:true,data:fixture});
+r = await rpc('tools/call',{name:'get_recent_briefings',arguments:{}}); const recent=JSON.parse(r.json.result.content[0].text); ok(recent[0].title===fixture.title && !('comments' in recent[0]), 'MCP reads back published report without private comments');
+r = await request('/care/api/briefings?q='+encodeURIComponent('제품'), {cookie:andy}); ok(r.json.items.some(b=>b.date===fixture.date), 'Title search returns saved report');
+r = await request('/care/api/logout', {cookie:andy,data:{}}); ok(r.status===200, 'Logout succeeds');
+r = await request('/care/api/me', {cookie:andy}); ok(r.status===401, 'Logged-out session cannot be reused');
+for(let i=0;i<9;i++) r=await request('/care/api/login',{data:{password:'bad'},ip:'192.0.2.123'});
+ok(r.status===429, 'Repeated password guesses rate limited');
+console.log(`${count} integration checks passed against local Cloudflare runtime.`);

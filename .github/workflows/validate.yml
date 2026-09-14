@@ -37,3 +37,8 @@ jobs:
 
       - name: Verify routes, links and canonical host
         run: npm run verify
+
+      - name: Verify private Care authentication and publication
+        run: |
+          node scripts/care-local-setup.mjs
+          node scripts/care-test-runner.mjs

@@ -8,3 +8,11 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+/care
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+
+/care/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow

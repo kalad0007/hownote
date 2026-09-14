@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /care
 Allow: /
 
 Sitemap: https://hownote.net/sitemap-index.xml
