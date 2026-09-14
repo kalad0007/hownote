@@ -1,0 +1,35 @@
+---
+import '../../styles/care.css';
+const build = import.meta.env.WORKERS_CI_COMMIT_SHA || import.meta.env.GITHUB_SHA || import.meta.env.COMMIT_SHA || 'local';
+---
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" /><meta name="hownote-build" content={build} />
+  <meta name="theme-color" content="#f6f5f0" /><title>복지용구 브리핑 · HowNote</title>
+  <link rel="canonical" href="https://hownote.net/care" /><link rel="manifest" href="/site.webmanifest" /><link rel="icon" href="/favicon.svg" />
+</head>
+<body>
+  <header class="masthead"><a class="brand" href="/care">HowNote<span>CARE JOURNAL</span></a><div id="identity" hidden><span id="reader-name"></span><button id="logout" class="quiet">나가기</button></div><span id="private-label">PRIVATE EDITION</span></header>
+  <main>
+    <section id="login-view" class="login-view" hidden>
+      <div class="edition">매일 조금 더 깊이, 함께</div><h1>복지용구 시장을 읽고,<br />가능성을 나누는 곳.</h1>
+      <p class="intro">오늘의 변화와 사업의 단서를<br />우리만의 브리핑에서 만나보세요.</p>
+      <form id="login-form"><label for="password">나의 비밀번호</label><div class="password-field"><input id="password" type="password" autocomplete="current-password" required maxlength="256" placeholder="비밀번호를 입력하세요" /><button type="button" id="show-password" class="quiet" aria-label="비밀번호 표시">보기</button></div><button type="submit" class="primary">자료실 입장 <span>→</span></button><p id="login-error" role="alert"></p></form>
+      <p class="login-foot">두 사람이 함께 읽고 기록하는 비공개 공간</p>
+    </section>
+    <div id="loading" class="empty" role="status">자료실을 여는 중입니다…</div>
+    <section id="library-view" hidden>
+      <div class="library-top"><div><div class="edition">우리의 시장 관찰 노트</div><h1>복지용구 브리핑</h1><p class="muted">매일의 발견이, 다음의 가능성으로.</p></div><span class="journal-mark" aria-hidden="true">H<span>↗</span></span></div>
+      <nav class="tabs" aria-label="자료 보기"><button id="latest-tab" class="active" aria-pressed="true">최신 브리핑</button><button id="archive-tab" aria-pressed="false">지난 자료</button><span>함께 읽는 10분</span></nav>
+      <div id="notice" role="status"></div>
+      <div id="archive" hidden><label class="search-label" for="search">지난 브리핑 검색</label><input id="search" type="search" placeholder="제목으로 찾아보기" /><div id="archive-list"></div><button id="load-more" class="secondary" hidden>지난 자료 더 보기</button></div>
+      <article id="briefing"></article>
+    </section>
+    <noscript>자료실을 이용하려면 브라우저의 JavaScript를 켜 주세요.</noscript>
+  </main>
+  <footer class="site-foot">HowNote <span>·</span> 함께 쌓아가는 복지용구 인텔리전스</footer>
+  <script>import '../../scripts/care.js';</script>
+</body>
+</html>

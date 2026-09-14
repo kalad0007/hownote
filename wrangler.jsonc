@@ -5,9 +5,31 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
-    "html_handling": "drop-trailing-slash"
+    "html_handling": "drop-trailing-slash",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/care",
+      "/care/*"
+    ]
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "main": "worker/care.mjs",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CARE_STORE",
+        "class_name": "CareStore"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "care-v1",
+      "new_sqlite_classes": [
+        "CareStore"
+      ]
+    }
+  ]
 }

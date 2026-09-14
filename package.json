@@ -15,10 +15,17 @@
     "verify:state": "node scripts/verify-tool-state.mjs",
     "verify": "npm run verify:build && npm run verify:safety && npm run verify:state",
     "validate": "npm run build && npm run verify",
-    "deploy": "npx wrangler@latest deploy"
+    "deploy": "npx wrangler@latest deploy",
+    "care:dev": "wrangler dev --local",
+    "care:credentials": "node scripts/care-credentials.mjs",
+    "test:care": "node tests/care-integration.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.2.4"
+    "astro": "^7.2.4",
+    "markdown-it": "^15.0.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.131.1"
   }
 }

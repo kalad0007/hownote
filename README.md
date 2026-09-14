@@ -151,3 +151,7 @@ No Supabase database is required at this stage. A database becomes relevant when
 6. Expand pipe data only after each new source set is documented.
 7. Build the first evidence-backed Standard Compare case.
 8. Convert verified comparison gaps into Purchase Note risk points.
+
+## Private Care journal (pending activation)
+
+`/care` adds a mobile-first private reader, password-only identities, comments and an authenticated publication endpoint. Public pages remain statically generated. Private content is stored in a dedicated Durable Object; no Supabase is introduced. See [Care setup and verification](docs/CARE_BRIEFING.md). Automatic publication is **not active** until the real scheduled-task connector is configured and tested.
