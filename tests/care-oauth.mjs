@@ -32,10 +32,14 @@ async function consent(scope=params.scope){
  const r=await begin({scope});assert.equal(r.status,200);
  return {cookie:r.headers.get('set-cookie').split(';')[0],form:{pending:r.text.match(/name="pending" value="([a-f0-9]+)"/)[1],publisher_key:token},page:r};
 }
-let c=await consent();ok(c.page.text.includes('&lt;test&gt;')&&!c.page.text.includes(token),'consent escapes client name and never embeds credential');
+let c=await consent();
+const other=await consent();
+const sharedCookies=c.cookie+'; '+other.cookie;
+ok(c.cookie.split('=')[0]!==other.cookie.split('=')[0],'independent consent flows have independent cookies');
+c.cookie=sharedCookies;ok(c.page.text.includes('&lt;test&gt;')&&!c.page.text.includes(token),'consent escapes client name and never embeds credential');
 ok(c.page.headers.get('content-security-policy').includes("form-action 'self'")&&c.page.headers.get('set-cookie').includes('HttpOnly'),'consent form and cookie protected');
 const approve=options=>req('/care/oauth/authorize',{method:'POST',...options});
-r=await approve({form:c.form});ok(r.status===403,'consent requires browser CSRF cookie');
+r=await approve({form:c.form});ok(r.status===403&&r.j.error_description.startsWith('consent_cookie_missing:'),'consent requires browser CSRF cookie with actionable error');
 r=await approve({...c,origin:'https://evil.example'});ok(r.status===403,'cross-origin consent rejected');
 r=await approve({...c,form:{...c.form,publisher_key:users[0].password}});ok(r.status===403,'reader password cannot authorize publisher');
 r=await approve(c);ok(r.status===303,'owner credential grants consent');
