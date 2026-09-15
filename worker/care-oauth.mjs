@@ -8,7 +8,7 @@ const safe = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>
 export const oauthScopes = ['briefings:read', 'briefings:write'];
 const common = {'Cache-Control':'no-store','Pragma':'no-cache','X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex, nofollow'};
 const json = (v, status = 200, extra = {}) => new Response(JSON.stringify(v), {status,headers:{...common,'Content-Type':'application/json; charset=utf-8',...extra}});
-function need(ok, error = 'invalid_request', status = 400) { if (!ok) throw Object.assign(new Error(error), {status, oauth:true}); }
+function need(ok, error = 'invalid_request', status = 400, description) { if (!ok) throw Object.assign(new Error(error), {status, oauth:true, description}); }
 function unique(p) { for (const k of p.keys()) need(p.getAll(k).length === 1); return Object.fromEntries(p); }
 function redirectAllowed(s) {
   try { const u = new URL(s); return u.origin === 'https://chatgpt.com' && !u.username && !u.password && !u.search && !u.hash &&
@@ -31,7 +31,7 @@ export class CareOAuth {
     const f=this.get('family',a.family); return f && f.credential===cred && f.resource===resource ? {scopes:f.scope.split(' ')} : null;
   }
   async handle(request) {
-    try { return await this.route(request); } catch(e) { return json({error:e.oauth ? e.message : e.status===429 ? 'temporarily_unavailable' : 'server_error'},e.status||500); }
+    try { return await this.route(request); } catch(e) { return json({error:e.oauth ? e.message : e.status===429 ? 'temporarily_unavailable' : 'server_error', ...(e.oauth && e.description ? {error_description:e.description} : {})},e.status||500); }
   }
   async route(request) {
     const u=new URL(request.url), origin=u.origin, resource=origin+'/care/mcp', path=u.pathname;
@@ -71,26 +71,31 @@ export class CareOAuth {
       const pending=random(), csrf=random();
       this.put('pending',await hash(pending),{...p,scope:scopes.join(' '),csrf:await hash(csrf),credential},Date.now()+600000);
       const perms=scopes.map(s=>`<li>${s==='briefings:read'?'최근 브리핑 읽기':'브리핑 작성 및 같은 날짜의 글 수정'}</li>`).join('');
-      return new Response(`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HowNote 게시 연결</title><style>body{font:17px/1.65 system-ui,sans-serif;margin:0;background:#f4f6f5;color:#17332d}main{max-width:460px;margin:6vh auto;padding:28px;background:white;border-radius:18px}h1{font-size:25px}label,input,button{display:block;box-sizing:border-box;width:100%}input{font:inherit;padding:12px;margin:8px 0 20px;border:1px solid #93a69f;border-radius:8px}button{font:inherit;padding:14px;background:#175d49;color:white;border:0;border-radius:8px}small{display:block;color:#53665f;margin-top:16px}@media(max-width:520px){main{margin:16px;padding:22px}}</style><main><h1>HowNote 게시 연결</h1><p>연결 요청: ${safe(client.client_name)}</p><ul>${perms}</ul><p>파트너 코멘트와 열람 비밀번호는 제공되지 않습니다.</p><form method="post" action="/care/oauth/authorize"><input type="hidden" name="pending" value="${pending}"><label for="key">게시 인증키</label><input id="key" name="publisher_key" type="password" required minlength="32" maxlength="512" autocomplete="off"><button type="submit">위 권한으로 연결 허용</button></form><small>Cloudflare에 등록한 64자리 게시 인증키를 입력해 주세요. 자료실 열람 비밀번호가 아닙니다. 창을 닫으면 연결하지 않습니다.</small></main></html>`,{headers:{...common,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",'Set-Cookie':`care_oauth_csrf=${csrf}; Path=/care/oauth/authorize; HttpOnly; Secure; SameSite=Lax; Max-Age=600`}});
+      return new Response(`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HowNote 게시 연결</title><style>body{font:17px/1.65 system-ui,sans-serif;margin:0;background:#f4f6f5;color:#17332d}main{max-width:460px;margin:6vh auto;padding:28px;background:white;border-radius:18px}h1{font-size:25px}label,input,button{display:block;box-sizing:border-box;width:100%}input{font:inherit;padding:12px;margin:8px 0 20px;border:1px solid #93a69f;border-radius:8px}button{font:inherit;padding:14px;background:#175d49;color:white;border:0;border-radius:8px}small{display:block;color:#53665f;margin-top:16px}@media(max-width:520px){main{margin:16px;padding:22px}}</style><main><h1>HowNote 게시 연결</h1><p>연결 요청: ${safe(client.client_name)}</p><ul>${perms}</ul><p>파트너 코멘트와 열람 비밀번호는 제공되지 않습니다.</p><form method="post" action="/care/oauth/authorize"><input type="hidden" name="pending" value="${pending}"><label for="key">게시 인증키</label><input id="key" name="publisher_key" type="password" required minlength="32" maxlength="512" autocomplete="off"><button type="submit">위 권한으로 연결 허용</button></form><small>Cloudflare에 등록한 64자리 게시 인증키를 입력해 주세요. 자료실 열람 비밀번호가 아닙니다. 창을 닫으면 연결하지 않습니다.</small></main></html>`,{headers:{...common,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",'Set-Cookie':`care_oauth_csrf_${pending}=${csrf}; Path=/care/oauth/authorize; HttpOnly; Secure; SameSite=Lax; Max-Age=600`}});
     }
     need(request.method==='POST','invalid_request',405);
     need(request.headers.get('content-type')?.includes('application/x-www-form-urlencoded'));
     const raw=await request.text(); need(raw.length<=12000);
     const p=unique(new URLSearchParams(raw));
     if(path==='/care/oauth/authorize') {
-      need(request.headers.get('origin')===origin,'invalid_request',403);
+      need(request.headers.get('origin')===origin,'invalid_request',403,'consent_origin_mismatch: HowNote 연결 화면에서 다시 제출해 주세요.');
       this.store.rate('oauth-consent:'+ip,8,900);
-      const key=await hash(p.pending||''), csrf=request.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith('care_oauth_csrf='))?.slice(16)||'';
-      const csrfHash=await hash(csrf), supplied=await hash(p.publisher_key||'');
+      need(/^[a-f0-9]{64}$/.test(p.pending||''),'invalid_request',403,'consent_request_missing: ChatGPT에서 연결을 다시 시작해 주세요.');
+      const key=await hash(p.pending), cookieName='care_oauth_csrf_'+p.pending;
+      const csrf=request.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='))?.slice(cookieName.length+1)||'';
       const pending=this.get('pending',key);
-      need(pending && pending.csrf===csrfHash && pending.credential===credential,'invalid_request',403);
+      need(pending,'invalid_request',403,'consent_expired: 연결 화면이 만료됐거나 이미 사용됐습니다. ChatGPT에서 다시 연결해 주세요.');
+      need(csrf,'invalid_request',403,'consent_cookie_missing: 연결 확인 쿠키가 전달되지 않았습니다. 기본 브라우저의 새 창에서 ChatGPT 연결을 다시 시작해 주세요.');
+      const csrfHash=await hash(csrf), supplied=await hash(p.publisher_key||'');
+      need(pending.csrf===csrfHash,'invalid_request',403,'consent_cookie_mismatch: 연결 확인 정보가 일치하지 않습니다. ChatGPT에서 다시 연결해 주세요.');
+      need(pending.credential===credential,'invalid_request',403,'consent_key_changed: 연결 화면을 연 뒤 서버 인증키가 변경됐습니다. ChatGPT에서 다시 연결해 주세요.');
       need(supplied===credential,'access_denied',403);
       // No await between consuming the request and inserting its single-use code.
       const code=random(), codeHash=await hash(code);
       need(this.get('pending',key),'invalid_request',403); this.del('pending',key);
       this.put('code',codeHash,pending,Date.now()+120000);
       const redirect=new URL(pending.redirect_uri); redirect.searchParams.set('code',code); redirect.searchParams.set('state',pending.state); redirect.searchParams.set('iss',origin);
-      return new Response(null,{status:303,headers:{...common,Location:redirect.href,'Set-Cookie':'care_oauth_csrf=; Path=/care/oauth/authorize; HttpOnly; Secure; SameSite=Lax; Max-Age=0'}});
+      return new Response(null,{status:303,headers:{...common,Location:redirect.href,'Set-Cookie':`${cookieName}=; Path=/care/oauth/authorize; HttpOnly; Secure; SameSite=Lax; Max-Age=0`}});
     }
     const client=this.get('client',p.client_id); need(client,'invalid_client',401);
     this.store.rate('oauth-token:'+ip,120,60);
