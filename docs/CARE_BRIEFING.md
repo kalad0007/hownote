@@ -17,17 +17,17 @@ The owner requested a mobile-first private welfare-equipment briefing reader at 
 
 **Not live / not connected to the scheduled task.** The local Workers runtime passed publish → read back → authenticated reader tests, including MCP initialize/tool listing/tool calls. This is a protocol/integration test, not a successful ChatGPT scheduled run.
 
-On 2026-09-14, the existing `복지용구 사업 브리핑` task was updated at the owner's request: preserve research and schedule, generate a mobile-friendly complete briefing object, transmit it through the authenticated publisher when connected, and verify storage. Until connected it continues the readable chat report and explicitly marks publication pending. The exact appended instruction is in `docs/CARE_AUTOMATION_APPENDIX.ko.md`. The shared conversation URL is not used as a feed.
+The existing `복지용구 사업 브리핑` task was inspected read-only. It generates a report but has no publication step. The shared conversation URL could not be fetched; do not scrape it or claim it is a live feed. No task was modified.
 
 Remaining owner-environment operations:
 
 1. Merge and deploy the reviewed code through the existing GitHub → Cloudflare pipeline.
 2. On a Cloudflare-authenticated owner machine run `npm run care:credentials` to enter each person's password and a separate publishing token without printing them. The command uploads only the hashed user records and the publishing token to Worker secrets.
-3. Connect `/care/mcp` using an authenticated connector that supports a securely stored Bearer token. Never put the token in a chat, task prompt, public repository, URL query or user-facing page. If the available ChatGPT connector requires OAuth rather than stored headers, implement OAuth before connecting; this server currently implements Bearer authentication, not OAuth discovery.
+3. Connect `/care/mcp` using OAuth as described in `docs/CARE_OAUTH.md`. Complete first-party consent using the existing publisher key. Never put the key in a chat, task prompt, public repository or URL. Direct Bearer publishing remains supported. Configure both secrets under Runtime variables and secrets, not Build variables.
 4. Verify tool discovery and a harmless read in the actual scheduled-task environment. Send one owner-approved real report, read it back, then check it through the reader login.
-5. The output/publication instructions are already appended to the existing task. After connecting the publisher, run one real scheduled execution and verify the saved report before reporting automatic publication as active.
+5. Only then append `docs/CARE_AUTOMATION_APPENDIX.ko.md` to the existing task without replacing its research instructions or schedule. Run one real scheduled execution before reporting automatic publication as active.
 
-This workspace had GitHub access but no Cloudflare credential or callable HowNote publishing connector. No production secret, live database, main branch or deployment was changed. The task prompt was updated; its schedule and enabled state were preserved.
+This workspace had GitHub access but no Cloudflare credential or callable HowNote publishing connector. No production secret, live database, main branch, deployment or task was changed during development.
 
 ## Local verification
 
@@ -56,6 +56,4 @@ References: https://developers.cloudflare.com/workers/static-assets/binding/ , h
 - Local Cloudflare Workers + real Durable Object runtime: 31 integration checks passed. Request body buffering was repaired after early-rejection stream errors; the final run completed without those errors.
 - Chromium/Playwright: 360/390/1280px overflow checks, both password identities, topic/whole-report comments, reload persistence, search, logout, HTML-like comment text, and the standalone HTML preview passed. No page errors.
 - Visual inspection: `care-mobile.png`, `care-login.png`, `care-desktop.png`. Only clearly labelled sample content is pictured.
-- Production unchanged; scheduled output/publication instructions updated, but actual transport is not connected. No secret committed.
-
-Current live check (2026-09-14): `/care/api/me` returned HTTP 404. Cloudflare dashboard showed a persistent browser security challenge after one reload, so no account settings were accessed or modified.
+- Production unchanged; actual scheduled publishing not enabled. No secret committed.

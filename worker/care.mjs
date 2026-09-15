@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import { CareOAuth, oauthPath, oauthChallenge, oauthScopes } from './care-oauth.mjs';
 
 const encoder = new TextEncoder();
 const headers = {
@@ -68,6 +69,7 @@ export class CareStore extends DurableObject {
     this.sql.exec(`CREATE INDEX IF NOT EXISTS comments_date ON comments(date, created)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, credential TEXT NOT NULL, expires INTEGER NOT NULL)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS attempts (key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL)`);
+    this.oauth = new CareOAuth(this);
   }
   rows(sql, ...args) { return this.sql.exec(sql, ...args).toArray(); }
   async session(request, users) {
@@ -98,14 +100,22 @@ export class CareStore extends DurableObject {
   }
   async handle(request) {
     const url = new URL(request.url), path = url.pathname;
+    if (oauthPath(path)) return this.oauth.handle(request);
     const publisher = path === '/care/api/publish' || path === '/care/mcp';
     if (publisher) {
       check(this.env.CARE_PUBLISH_TOKEN?.length >= 32, '게시 연결이 준비되지 않았습니다.', 503);
       const auth = request.headers.get('authorization') || '';
-      check(await digest(auth) === await digest(`Bearer ${this.env.CARE_PUBLISH_TOKEN}`), '게시 인증이 필요합니다.', 401);
+      let scopes = oauthScopes;
+      const direct = await digest(auth) === await digest(`Bearer ${this.env.CARE_PUBLISH_TOKEN}`);
+      if (!direct) {
+        const access = auth.startsWith('Bearer ') && auth.length < 600 ? await this.oauth.access(auth.slice(7), url.origin + '/care/mcp') : null;
+        if (!access) return json({ error: '게시 인증이 필요합니다.' }, 401, { 'WWW-Authenticate': oauthChallenge(url.origin) });
+        scopes = access.scopes;
+      }
       if (request.headers.has('origin')) check(request.headers.get('origin') === url.origin, '허용되지 않은 요청입니다.', 403);
       check(request.method === 'POST', 'POST 요청이 필요합니다.', 405);
-      if (path === '/care/mcp') return this.mcp(await body(request));
+      if (path === '/care/mcp') return this.mcp(await body(request), scopes, url.origin);
+      check(scopes.includes('briefings:write'), '게시 권한이 필요합니다.', 403);
       return json(await this.publish(await body(request)));
     }
     const users = usersFrom(this.env); check(users, '자료실 입장 설정을 준비 중입니다.', 503);
@@ -153,19 +163,21 @@ export class CareStore extends DurableObject {
     }
     return json({ error: '요청한 경로를 찾을 수 없습니다.' }, 404);
   }
-  async mcp(msg) {
+  async mcp(msg, scopes = oauthScopes, origin = 'https://hownote.net') {
     check(msg && msg.jsonrpc === '2.0' && typeof msg.method === 'string', 'JSON-RPC 요청을 확인해 주세요.');
     if (!('id' in msg)) return new Response(null, { status: 202, headers });
     const result = value => json({ jsonrpc: '2.0', id: msg.id, result: value });
-    if (msg.method === 'initialize') return result({ protocolVersion: '2025-03-26', capabilities: { tools: {} }, serverInfo: { name: 'hownote-care', version: '1.0.0' } });
+    if (msg.method === 'initialize') return result({ protocolVersion: '2025-03-26', capabilities: { tools: {} }, serverInfo: { name: 'hownote-care', version: '1.1.0' } });
     if (msg.method === 'ping') return result({});
     if (msg.method === 'tools/list') return result({ tools: [
-      { name: 'publish_briefing', description: 'Save the completed Korean welfare briefing to the private HowNote library. Preserve the complete report, source URLs, facts and estimates. Same date updates in place and preserves comments. Read back after publishing.', inputSchema: { type: 'object', properties: { briefing: { type: 'object', properties: { date: { type: 'string' }, title: { type: 'string' }, summary: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 5 }, sections: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['id', 'title', 'body'], additionalProperties: false } }, sources: { type: 'array', items: { type: 'object', properties: { title: { type: 'string' }, url: { type: 'string' } }, required: ['title', 'url'], additionalProperties: false } } }, required: ['date', 'title', 'summary', 'sections', 'sources'], additionalProperties: false } }, required: ['briefing'], additionalProperties: false }, annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false } },
-      { name: 'get_recent_briefings', description: 'Read the last 7 saved briefings, without partner comments, to verify publication and avoid repeating past research.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true, openWorldHint: false } },
+      { name: 'publish_briefing', securitySchemes: [{ type: 'oauth2', scopes: ['briefings:write'] }], description: 'Save the completed Korean welfare briefing to the private HowNote library. Preserve the complete report, source URLs, facts and estimates. Same date updates in place and preserves comments. Read back after publishing.', inputSchema: { type: 'object', properties: { briefing: { type: 'object', properties: { date: { type: 'string' }, title: { type: 'string' }, summary: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 5 }, sections: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['id', 'title', 'body'], additionalProperties: false } }, sources: { type: 'array', items: { type: 'object', properties: { title: { type: 'string' }, url: { type: 'string' } }, required: ['title', 'url'], additionalProperties: false } } }, required: ['date', 'title', 'summary', 'sections', 'sources'], additionalProperties: false } }, required: ['briefing'], additionalProperties: false }, annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false } },
+      { name: 'get_recent_briefings', securitySchemes: [{ type: 'oauth2', scopes: ['briefings:read'] }], description: 'Read the last 7 saved briefings, without partner comments, to verify publication and avoid repeating past research.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true, openWorldHint: false } },
     ] });
     if (msg.method === 'tools/call') {
       try {
         let data;
+        const needed = msg.params?.name === 'publish_briefing' ? 'briefings:write' : 'briefings:read';
+        if (!scopes.includes(needed)) return result({ content: [{type:'text',text:'이 도구의 권한으로 다시 연결해 주세요.'}], isError:true, _meta:{'mcp/www_authenticate':[oauthChallenge(origin) + ', scope="' + needed + '"']} });
         if (msg.params?.name === 'publish_briefing') data = await this.publish(msg.params.arguments?.briefing);
         else if (msg.params?.name === 'get_recent_briefings') data = this.rows('SELECT payload, hash, updated FROM briefings ORDER BY date DESC LIMIT 7').map(r => ({ ...JSON.parse(r.payload), hash: r.hash, updated: r.updated }));
         else return json({ jsonrpc: '2.0', id: msg.id, error: { code: -32602, message: 'Unknown tool' } });
@@ -178,7 +190,7 @@ export class CareStore extends DurableObject {
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
-    if (path.startsWith('/care/api/') || path === '/care/mcp') {
+    if (path.startsWith('/care/api/') || path === '/care/mcp' || oauthPath(path)) {
       if (!env.CARE_STORE) return json({ error: '자료실 연결을 준비 중입니다.' }, 503);
       // Buffer bounded request bodies before crossing the Durable Object boundary.
       // This also lets early authentication failures respond without an in-flight upload.

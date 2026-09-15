@@ -19,8 +19,8 @@ async function hidden(prompt) {
 }
 const users = []; const passwords = [];
 for (const [id, display] of [['andy', 'Andy'], ['partner', name]]) {
-  const password = await hidden(`${display} 비밀번호 (8자 이상, 화면에 표시되지 않음): `);
-  if (password.length < 8 || password.length > 256 || password !== password.trim()) throw new Error('Use 8–256 characters without leading/trailing spaces.');
+  const password = await hidden(`${display} 비밀번호 (4자 이상, 화면에 표시되지 않음): `);
+  if (password.length < 4 || password.length > 256 || password !== password.trim()) throw new Error('Use 4–256 characters without leading/trailing spaces.');
   if (await hidden('한 번 더 입력: ') !== password) throw new Error('Passwords do not match.');
   if (passwords.includes(password)) throw new Error('The two people must use different passwords.'); passwords.push(password);
   const salt = randomBytes(16).toString('hex');
