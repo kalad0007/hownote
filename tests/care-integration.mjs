@@ -49,3 +49,5 @@ r = await request('/care/api/me', {cookie:andy}); ok(r.status===401, 'Logged-out
 for(let i=0;i<9;i++) r=await request('/care/api/login',{data:{password:'bad'},ip:'192.0.2.123'});
 ok(r.status===429, 'Repeated password guesses rate limited');
 console.log(`${count} integration checks passed against local Cloudflare runtime.`);
+
+await import("./care-oauth.mjs");
