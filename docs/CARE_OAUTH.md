@@ -59,3 +59,11 @@ node scripts/care-test-runner.mjs
 Use only generated local test credentials and fixtures. Never run these write tests
 against production. On production, verify discovery, intended revision and the
 consent screen; the account owner completes the real first connection.
+
+## Browser form policy
+
+The consent HTML uses `Referrer-Policy: same-origin`: `no-referrer` causes
+HTML form POSTs to carry `Origin: null`, which correctly fails the server origin
+check. JSON/token responses retain no-referrer. CSP permits same-origin form
+submission and only the validated registered ChatGPT callback for its redirect.
+The server still rejects null and cross-origin consent POSTs.
