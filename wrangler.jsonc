@@ -10,6 +10,8 @@
     "run_worker_first": [
       "/care",
       "/care/*",
+      "/ib",
+      "/ib/*",
       "/.well-known/oauth-authorization-server",
       "/.well-known/oauth-protected-resource",
       "/.well-known/oauth-protected-resource/care/mcp"
@@ -24,6 +26,10 @@
       {
         "name": "CARE_STORE",
         "class_name": "CareStore"
+      },
+      {
+        "name": "IB_STORE",
+        "class_name": "IbStore"
       }
     ]
   },
@@ -33,6 +39,10 @@
       "new_sqlite_classes": [
         "CareStore"
       ]
+    },
+    {
+      "tag": "ib-v1",
+      "new_sqlite_classes": ["IbStore"]
     }
   ]
 }

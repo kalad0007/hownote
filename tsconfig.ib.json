@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {"noEmit":true,"types":[],"skipLibCheck":true},
+  "include": ["src/data/ib.ts","src/scripts/ib.ts","src/env.d.ts","src/layouts/IbLayout.astro","src/pages/ib/**/*.astro"]
+}

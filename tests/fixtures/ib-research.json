@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "projectKey": "ib-research",
+  "contentKey": "sample-linear-model",
+  "date": "2026-10-04",
+  "category": "subject-research",
+  "materialKind": "original-question",
+  "title": "자체 작성 예시: 선형 모형의 조건을 문항으로 바꾸기",
+  "summary": ["두 변수의 관계를 정하고, 필요한 조건과 불필요한 단서를 구분하는 설계 실험입니다.", "동일한 기록을 수학과 경제 과목에서 참조합니다. 공식 교육과정 대응은 후속 검수에서 확인합니다."],
+  "body": "## 실험용 자체 작성 자료\n\n이 기록의 문항과 분석은 HowNote 로컬 검증을 위해 새로 작성했습니다. 공식 교육과정, 기출 또는 실제 한국 개설 현황을 검증한 자료로 표시하지 않습니다.\n\n## 문항 초안\n\n한 실험에서 투입량 x와 산출량 y의 관계를 y = 2x + 3으로 정했다. x = 4일 때 산출량 y를 구하고, 상수항 3이 이 모형에서 뜻하는 바를 한 문장으로 설명하시오.\n\n## 설계 메모\n\n계산 결과는 11이다. 수치 대입과 상수항의 의미 해석을 함께 살펴보되, 모형에 없는 현실적 조건을 임의로 추가하지 않도록 설계한다.\n\n| 설계 요소 | 실험에서 정한 조건 |\n| --- | --- |\n| 독립 변수 | 투입량 x |\n| 관계식 | y = 2x + 3 |\n| 응답 | 계산과 의미 설명 |",
+  "subjectKeys": ["mathematics-aa", "economics"],
+  "metadata": {
+    "levels": ["SL"],
+    "curriculumVersion": "로컬 설계 실험 v1 · 공식 교육과정 대응 미확인",
+    "examYears": [],
+    "language": "한국어",
+    "units": ["선형 모형 · 임시 분류"],
+    "assessmentSkills": ["조건에 따른 계산", "모형 해석"],
+    "questionTypes": ["짧은 계산 응답", "한 문장 설명"],
+    "designPrinciples": ["정답에 필요한 관계식을 명시한다.", "계산과 의미 해석을 구분해서 평가한다."],
+    "constraints": ["x = 4를 사용한다.", "관계식에 없는 가정은 요구하지 않는다."],
+    "markingCriteria": ["y = 11이라는 계산 결과", "x = 0일 때 y = 3이라는 상수항의 의미"],
+    "misconceptions": ["상수항을 기울기로 해석함", "덧셈과 곱셈의 순서를 혼동함"],
+    "generationInstructions": ["새 계수와 입력값을 사용하되, 관계식과 풀이가 일치하는지 검수한다.", "공식 시험 연도·배점·교육과정 매핑은 근거 확인 전 생성하지 않는다."],
+    "generationEligibility": "allowed",
+    "generationRationale": "문항과 해설은 로컬 실험을 위해 자체 작성했으며 생성 실험에 이용할 수 있습니다."
+  },
+  "sources": [{
+    "id": "local-original", "title": "HowNote 자체 작성 로컬 설계 예시", "url": "", "kind": "self-authored",
+    "version": "실험 v1", "accessedOn": "2026-10-04", "rightsStatus": "self-authored",
+    "usageScope": "로컬 UI·저장 검증 및 자체 문항 설계 실험", "permissionEvidence": "이 작업에서 새로 작성한 문항과 분석", "generationAllowed": true
+  }],
+  "reviewStatus": "needs-review",
+  "reviewNote": "자체 작성 실험용 자료. 공식 교육과정 대응과 실제 평가 활용은 별도 검수합니다.",
+  "relatedKeys": []
+}

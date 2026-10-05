@@ -1,0 +1,18 @@
+---
+import IbLayout from '../../layouts/IbLayout.astro';
+import {materialLabels,reviewLabels} from '../../data/ib';
+---
+<IbLayout title="IB 연구실" page="index">
+  <div class="page-heading"><div><h1 id="page-title">IB 연구실</h1><p id="page-description">도비가 정리한 날짜별 연구와 문항 설계 원리를 읽습니다.</p></div></div>
+  <nav id="subject-tabs" class="subject-tabs" aria-label="과목 선택" hidden></nav>
+  <form id="filters" class="filters" role="search">
+    <div class="search-field"><label for="search">연구 검색</label><input id="search" name="q" type="search" maxlength="120" placeholder="제목이나 요약으로 찾기" /></div>
+    <div><label for="level">수준</label><select id="level" name="level"><option value="">SL·HL 전체</option><option>SL</option><option>HL</option></select></div>
+    <div><label for="material-kind">자료 종류</label><select id="material-kind" name="materialKind"><option value="">전체 자료</option>{Object.entries(materialLabels).map(([key,label])=><option value={key}>{label}</option>)}</select></div>
+    <div><label for="review-status">검수 상태</label><select id="review-status" name="reviewStatus"><option value="">전체 상태</option>{Object.entries(reviewLabels).map(([key,label])=><option value={key}>{label}</option>)}</select></div>
+    <button type="submit" class="secondary">검색</button><button type="button" id="reset-filters" class="quiet">초기화</button>
+  </form>
+  <p id="list-status" class="muted small" role="status"></p>
+  <div id="research-list"></div>
+  <button id="load-more" type="button" class="secondary load-more" hidden>이전 연구 더 보기</button>
+</IbLayout>
