@@ -10,7 +10,7 @@ const buildSha =
 export default defineConfig({
   site: 'https://hownote.net',
   output: 'static',
-  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/care') })],
+  integrations: [sitemap({ filter: (page) => !/^\/(care|ib)(\/|$)/.test(new URL(page).pathname) })],
   trailingSlash: 'never',
   vite: {
     define: {

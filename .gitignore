@@ -21,3 +21,9 @@ Thumbs.db
 
 # Care local testing credentials
 .care-local-credentials.json
+.ib-local-credentials.json
+.ib-runtime-secrets.json
+artifacts/
+test-results/
+playwright-report/
+.impeccable/review/

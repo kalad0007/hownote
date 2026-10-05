@@ -152,6 +152,10 @@ No Supabase database is required at this stage. A database becomes relevant when
 7. Build the first evidence-backed Standard Compare case.
 8. Convert verified comparison gaps into Purchase Note risk points.
 
-## Private Care journal (pending activation)
+## Private IB research workspace (local implementation)
+
+`/ib` is a personal, read-only question-design research library with a four-digit numeric PIN. Dobby publishes through separate IB APIs/MCP. The library preserves managed subject references, provenance, usage rights and immutable revisions. The owner can run `npm run ib:pin` locally to enter and confirm a PIN without generating publishing credentials. Existing public tools and Care storage/OAuth are preserved. Production activation and connector registration are separate operations. See [IB research implementation and handover](docs/IB_RESEARCH.md).
+
+## Private Care journal
 
 `/care` adds a mobile-first private reader, password-only identities, comments and an authenticated publication endpoint. Public pages remain statically generated. Private content is stored in a dedicated Durable Object; no Supabase is introduced. See [Care setup and verification](docs/CARE_BRIEFING.md). Automatic publication is **not active** until the real scheduled-task connector is configured and tested.

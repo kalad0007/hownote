@@ -41,4 +41,5 @@ jobs:
       - name: Verify private Care authentication and publication
         run: |
           node scripts/care-local-setup.mjs
-          node scripts/care-test-runner.mjs
+          npm run check:ib
+          npm run test:private

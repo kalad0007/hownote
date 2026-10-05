@@ -1,5 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { CareOAuth, oauthPath, oauthChallenge, oauthScopes } from './care-oauth.mjs';
+import { fetchIb } from './ib.mjs';
+export { IbStore } from './ib.mjs';
 
 const encoder = new TextEncoder();
 const headers = {
@@ -190,6 +192,7 @@ export class CareStore extends DurableObject {
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
+    if (path === '/ib' || path.startsWith('/ib/')) return fetchIb(request, env);
     if (path.startsWith('/care/api/') || path === '/care/mcp' || oauthPath(path)) {
       if (!env.CARE_STORE) return json({ error: '자료실 연결을 준비 중입니다.' }, 503);
       // Buffer bounded request bodies before crossing the Durable Object boundary.
